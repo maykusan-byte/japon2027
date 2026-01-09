@@ -6,16 +6,11 @@
     <title>Japon : L'Itinéraire Ultime</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
     
-    <!-- Chosen Palette: Zen Minimalist - Cream (#FAFAF9) background, Sumi Ink (#1C1917) text, Indigo (#4338CA) primary, Matcha (#65A30D) accent -->
-    <!-- Application Structure Plan: 
-         1. Dashboard: Global stats for 50+ locations.
-         2. Region Logic: Grouped into major zones (Kanto, Kansai, Chugoku, Kyushu, Chubu, Tohoku).
-         3. Hub Logic: Critical logic applied. E.g., 'Kyoto Sea' separated from 'Kyoto City' due to distance.
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-
     <style>
         body { font-family: 'Noto Sans JP', sans-serif; }
         .chart-container {
@@ -27,6 +22,13 @@
             height: 300px;
             max-height: 500px;
         }
+        /* Style pour la carte */
+        #main-map {
+            z-index: 1;
+            height: 450px;
+            width: 100%;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
@@ -37,7 +39,6 @@
 </head>
 <body class="bg-stone-50 text-stone-800 antialiased selection:bg-indigo-100 selection:text-indigo-900">
 
-    <!-- Navigation -->
     <header class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center gap-2 cursor-pointer" onclick="app.goHome()">
@@ -52,35 +53,28 @@
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-8 min-h-screen">
         
-        <!-- DASHBOARD VIEW -->
         <div id="dashboard-view" class="space-y-12 animate-fade-in">
             
-            <!-- Intro -->
             <section class="text-center max-w-4xl mx-auto space-y-6">
                 <h2 class="text-3xl md:text-5xl font-bold text-stone-900">Le Grand Tour</h2>
                 <p class="text-lg text-stone-600 leading-relaxed">
                     Vous avez identifié <strong id="total-count-hero" class="text-indigo-600">0</strong> lieux d'exception. 
                     De la péninsule isolée de Tsugaru au nord jusqu'aux forêts de Yakushima au sud, cet itinéraire couvre tout le spectre du Japon.
-                    Pour rendre ce voyage réalisable, nous avons organisé vos étapes autour de <span class="text-indigo-600 font-bold">Villes Hubs</span> clés.
                 </p>
                 <div class="flex flex-wrap justify-center gap-3 text-xs md:text-sm text-stone-500 font-mono">
                     <span class="px-3 py-1 bg-white border border-stone-200 rounded-full">🚅 JR Pass 21 Jours Recommandé</span>
-                    <span class="px-3 py-1 bg-white border border-stone-200 rounded-full">🎒 Densité : Élevée</span>
-                    <span class="px-3 py-1 bg-white border border-stone-200 rounded-full">🌸 Saison Idéale : Printemps/Automne</span>
+                    <span class="px-3 py-1 bg-white border border-stone-200 rounded-full">🌸 Saison : Printemps/Automne</span>
                 </div>
             </section>
 
-            <!-- Global Stats -->
             <section class="bg-white rounded-2xl p-6 shadow-sm border border-stone-100">
                 <div class="grid md:grid-cols-2 gap-8 items-center">
                     <div>
                         <h3 class="text-xl font-bold mb-4 text-stone-800 border-l-4 border-indigo-500 pl-3">ADN de votre Voyage</h3>
                         <p class="text-stone-600 mb-6 text-sm">
-                            Votre liste est incroyablement complète. Elle combine les classiques urbains (Tokyo/Kyoto) avec des pépites rares (Motonosumi, Takayama Inari).
-                            Le graphique montre une forte tendance vers le spirituel (Temples/Sanctuaires) et la nature.
+                            Combinaison de classiques urbains et de pépites rares. Le graphique montre une forte tendance vers le spirituel et la nature.
                         </p>
                         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                             <div class="bg-indigo-50 p-4 rounded-lg text-center">
@@ -101,32 +95,29 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Chart Container -->
                     <div class="chart-container">
                         <canvas id="overviewChart"></canvas>
                     </div>
                 </div>
             </section>
 
-            <!-- Regions Grid -->
+            <section class="bg-white rounded-2xl p-6 shadow-sm border border-stone-100">
+                <h3 class="text-xl font-bold mb-4 text-stone-800 border-l-4 border-indigo-500 pl-3">Carte Interactive</h3>
+                <div id="main-map" class="shadow-inner border border-stone-200"></div>
+            </section>
+
             <section id="regions-section">
                 <h3 class="text-xl font-bold mb-6 text-stone-800 border-l-4 border-indigo-500 pl-3">Vos Zones d'Exploration</h3>
-                <p class="text-stone-600 mb-6 max-w-2xl text-sm">Cliquez sur une région pour voir le détail logistique et les activités.</p>
                 <div id="regions-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    <!-- Cards injected via JS -->
-                </div>
+                    </div>
             </section>
         </div>
 
-        <!-- REGION DETAIL VIEW -->
         <div id="region-view" class="hidden space-y-8 animate-fade-in">
-            
-            <!-- Breadcrumbs -->
             <button onclick="app.goHome()" class="flex items-center text-sm text-stone-500 hover:text-indigo-600 transition-colors mb-4 group font-medium">
                 <span class="group-hover:-translate-x-1 transition-transform mr-1">←</span> Retour Carte Globale
             </button>
 
-            <!-- Hub Header -->
             <div id="hub-header" class="bg-gradient-to-br from-stone-900 to-stone-800 text-white rounded-2xl p-6 md:p-10 shadow-xl relative overflow-hidden">
                 <div class="relative z-10">
                     <div class="flex flex-wrap items-center gap-3 mb-4">
@@ -145,29 +136,20 @@
                         </div>
                     </div>
                 </div>
-                <!-- Abstract Art -->
                 <div class="absolute right-0 top-0 w-96 h-96 bg-indigo-500 rounded-full blur-[100px] opacity-20 mix-blend-screen pointer-events-none"></div>
             </div>
 
-            <!-- Logistics Chart Section -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-stone-100">
                 <div class="flex flex-col lg:flex-row gap-8">
                     <div class="lg:w-1/3 flex flex-col justify-center">
                         <h3 class="text-lg font-bold mb-2 text-stone-800">⏱️ Radar Logistique</h3>
                         <p class="text-sm text-stone-600 mb-4">
                             Temps de transport (aller simple) depuis <span class="font-bold text-indigo-600 hub-name-span"></span>.
-                            <br><span class="text-xs text-stone-400 italic">Basé sur les trajets Train/Bus standards.</span>
                         </p>
-                        <div class="grid grid-cols-3 gap-2 text-center text-[10px] font-bold text-stone-500 mb-4 lg:mb-0">
-                            <div class="bg-emerald-50 p-2 rounded border border-emerald-100 text-emerald-700">
-                                PROCHE<br>&lt; 60m
-                            </div>
-                            <div class="bg-amber-50 p-2 rounded border border-amber-100 text-amber-700">
-                                MOYEN<br>1h-2h
-                            </div>
-                            <div class="bg-rose-50 p-2 rounded border border-rose-100 text-rose-700">
-                                LOIN<br>&gt; 2h
-                            </div>
+                        <div class="grid grid-cols-3 gap-2 text-center text-[10px] font-bold text-stone-500">
+                            <div class="bg-emerald-50 p-2 rounded border border-emerald-100 text-emerald-700">PROCHE<br>&lt; 60m</div>
+                            <div class="bg-amber-50 p-2 rounded border border-amber-100 text-amber-700">MOYEN<br>1h-2h</div>
+                            <div class="bg-rose-50 p-2 rounded border border-rose-100 text-rose-700">LOIN<br>&gt; 2h</div>
                         </div>
                     </div>
                     <div class="lg:w-2/3 border-t lg:border-t-0 lg:border-l border-stone-100 pt-4 lg:pt-0 lg:pl-8">
@@ -178,18 +160,14 @@
                 </div>
             </div>
 
-            <!-- Activities List -->
             <div>
                 <h3 class="text-xl font-bold mb-6 text-stone-800 flex items-center gap-2">
                     <span>📍</span> Liste des Activités
                 </h3>
                 <div id="activities-list" class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                    <!-- Activity Cards Injected via JS -->
-                </div>
+                    </div>
             </div>
-
         </div>
-
     </main>
 
     <footer class="bg-stone-900 text-stone-400 py-8 mt-12 border-t border-stone-800">
@@ -201,124 +179,139 @@
         </div>
     </footer>
 
-    <!-- JAVASCRIPT LOGIC -->
     <script>
-        // --- DATA INGESTION & PROCESSING ---
-        // I have manually parsed and enriched the 50+ locations from your list.
-        // Logic: Group by Region -> Define Hub -> Estimate Logisitics.
-
+        // --- DATA WITH GEOCOORDINATES ---
         const rawData = [
-            // --- KANTO (Tokyo Hub) ---
-            { name: "Shinjuku", region: "Tokyo & Kanto", hub: "Tokyo", type: "Ville/Shopping", rating: 4.5, transport: "Métro/JR local", time: 0, desc: "Le cœur battant de Tokyo. Néons, foules, Godzilla head et vie nocturne." },
-            { name: "Akihabara", region: "Tokyo & Kanto", hub: "Tokyo", type: "Ville/Geek", rating: 4.3, transport: "JR Yamanote (15 min)", time: 15, desc: "La mecque de l'électronique et des otaku. Maids cafés et figurines partout." },
-            { name: "Ueno", region: "Tokyo & Kanto", hub: "Tokyo", type: "Culture/Parc", rating: 4.4, transport: "JR Yamanote (20 min)", time: 20, desc: "Grands musées nationaux, zoo, et le marché populaire d'Ameyoko." },
-            { name: "Ikebukuro", region: "Tokyo & Kanto", hub: "Tokyo", type: "Ville/Shopping", rating: 4.2, transport: "JR Yamanote (25 min)", time: 25, desc: "Alternative à Shinjuku/Akiba. Centre Pokémon et Sunshine City." },
-            { name: "Kamakura (Ville)", region: "Tokyo & Kanto", hub: "Tokyo", type: "Culture/Temples", rating: 4.6, transport: "JR Yokosuka Line (1h)", time: 60, desc: "Le grand Bouddha et les temples zen. Ambiance côtière détendue." },
-            { name: "Kamakurakōkō-Mae St.", region: "Tokyo & Kanto", hub: "Tokyo", type: "Photo/Anime", rating: 4.3, transport: "Enoden Line (1h15)", time: 75, desc: "Le passage à niveau légendaire du générique de Slam Dunk. Vue sur mer." },
-            { name: "Katori (Chiba)", region: "Tokyo & Kanto", hub: "Tokyo", type: "Culture/Tradition", rating: 4.4, transport: "JR Narita+Kashima (1h40)", time: 100, desc: "La 'Petite Edo' de Chiba. Canaux historiques et grand sanctuaire Katori-jingu." },
+            // KANTO
+            { name: "Shinjuku", region: "Tokyo & Kanto", hub: "Tokyo", type: "Ville/Shopping", rating: 4.5, time: 0, desc: "Néons, foules, Godzilla head.", lat: 35.6938, lng: 139.7034 },
+            { name: "Akihabara", region: "Tokyo & Kanto", hub: "Tokyo", type: "Ville/Geek", rating: 4.3, time: 15, desc: "Électronique et otaku.", lat: 35.6984, lng: 139.7731 },
+            { name: "Ueno", region: "Tokyo & Kanto", hub: "Tokyo", type: "Culture/Parc", rating: 4.4, time: 20, desc: "Musées et marché Ameyoko.", lat: 35.7141, lng: 139.7741 },
+            { name: "Ikebukuro", region: "Tokyo & Kanto", hub: "Tokyo", type: "Ville/Shopping", rating: 4.2, time: 25, desc: "Alternative à Shinjuku.", lat: 35.7289, lng: 139.7118 },
+            { name: "Kamakura (Ville)", region: "Tokyo & Kanto", hub: "Tokyo", type: "Culture/Temples", rating: 4.6, time: 60, desc: "Bouddha et temples zen.", lat: 35.3197, lng: 139.5502 },
+            { name: "Kamakurakōkō-Mae", region: "Tokyo & Kanto", hub: "Tokyo", type: "Photo/Anime", rating: 4.3, time: 75, desc: "Passage à niveau Slam Dunk.", lat: 35.3067, lng: 139.5019 },
+            { name: "Katori (Chiba)", region: "Tokyo & Kanto", hub: "Tokyo", type: "Culture/Tradition", rating: 4.4, time: 100, desc: "La 'Petite Edo' de Chiba.", lat: 35.8907, lng: 140.4992 },
             
-            // --- FUJI FIVE LAKES (Fuji Hub) ---
-            { name: "Parc Oishi", region: "Mont Fuji", hub: "Kawaguchiko", type: "Nature/Vue", rating: 4.5, transport: "Bus touristique (20min)", time: 20, desc: "La vue classique du Fuji avec le lac et les fleurs au premier plan." },
-            { name: "Chureito Pagoda", region: "Mont Fuji", hub: "Kawaguchiko", type: "Vue/Icône", rating: 4.7, transport: "Train + Marche (30min)", time: 30, desc: "Arakurayama Sengen Park. LA photo du Japon : Pagode + Cerisiers + Fuji." },
+            // FUJI
+            { name: "Parc Oishi", region: "Mont Fuji", hub: "Kawaguchiko", type: "Nature/Vue", rating: 4.5, time: 20, desc: "Vue classique du Fuji avec fleurs.", lat: 35.5228, lng: 138.7441 },
+            { name: "Chureito Pagoda", region: "Mont Fuji", hub: "Kawaguchiko", type: "Vue/Icône", rating: 4.7, time: 30, desc: "Pagode + Cerisiers + Fuji.", lat: 35.5013, lng: 138.8013 },
 
-            // --- KANSAI CENTRAL (Kyoto Hub) ---
-            { name: "Gion", region: "Kyoto", hub: "Kyoto", type: "Culture/Ville", rating: 4.5, transport: "Bus/Marche", time: 15, desc: "Le quartier des Geishas. Rues pavées, maisons de thé et charme ancien." },
-            { name: "Ninna-ji", region: "Kyoto", hub: "Kyoto", type: "Temple/UNESCO", rating: 4.6, transport: "Bus/Train Randen (30min)", time: 30, desc: "Immense complexe, célèbre pour ses cerisiers tardifs Omuro." },
-            { name: "Renge-ji", region: "Kyoto", hub: "Kyoto", type: "Temple/Jardin", rating: 4.7, transport: "Bus/Train Eizan (40min)", time: 40, desc: "Un petit joyau caché au nord. Jardin sublime, calme absolu." },
-            { name: "Kurama-dera", region: "Kyoto", hub: "Kyoto", type: "Montagne/Rando", rating: 4.6, transport: "Train Eizan (50min)", time: 50, desc: "Temple de montagne mystique, terre des Tengu. Rando vers Kibune possible." },
-            { name: "Kifune Shrine", region: "Kyoto", hub: "Kyoto", type: "Sanctuaire/Eau", rating: 4.5, transport: "Train Eizan + Bus (1h)", time: 60, desc: "Célèbre pour ses lanternes rouges longeant l'escalier de pierre." },
-            { name: "Otagi Nenbutsuji", region: "Kyoto", hub: "Kyoto", type: "Temple/Art", rating: 4.8, transport: "Bus vers Arashiyama (1h)", time: 60, desc: "Le temple aux 1200 statues de pierre aux visages amusants. Très photogénique." },
-            { name: "Hozugawa Boat Ride", region: "Kyoto", hub: "Kyoto", type: "Activité/Nature", rating: 4.4, transport: "Train vers Kameoka (30min)", time: 30, desc: "Descente de rivière traditionnelle en bateau vers Arashiyama." },
-            { name: "Nintendo Museum", region: "Kyoto", hub: "Kyoto", type: "Musée/Geek", rating: 4.9, transport: "Train Kintetsu (20min)", time: 20, desc: "À Uji. Le nouveau musée officiel retraçant l'histoire de Nintendo." },
-            { name: "Momiji-ya (Takao)", region: "Kyoto", hub: "Kyoto", type: "Restaurant/Rivière", rating: 4.4, transport: "Bus JR (50min)", time: 50, desc: "Dîner Kawadoko sur la rivière en été, ou érables en automne à Takao." },
+            // KYOTO & CENTRAL
+            { name: "Gion", region: "Kyoto", hub: "Kyoto", type: "Culture/Ville", rating: 4.5, time: 15, desc: "Quartier des Geishas.", lat: 35.0037, lng: 135.7778 },
+            { name: "Ninna-ji", region: "Kyoto", hub: "Kyoto", type: "Temple/UNESCO", rating: 4.6, time: 30, desc: "Célèbre pour cerisiers Omuro.", lat: 35.0280, lng: 135.7138 },
+            { name: "Renge-ji", region: "Kyoto", hub: "Kyoto", type: "Temple/Jardin", rating: 4.7, time: 40, desc: "Joyau caché au nord.", lat: 35.0601, lng: 135.8041 },
+            { name: "Kurama-dera", region: "Kyoto", hub: "Kyoto", type: "Montagne/Rando", rating: 4.6, time: 50, desc: "Temple mystique, terre des Tengu.", lat: 35.1182, lng: 135.7674 },
+            { name: "Kifune Shrine", region: "Kyoto", hub: "Kyoto", type: "Sanctuaire/Eau", rating: 4.5, time: 60, desc: "Lanternes rouges sur escalier.", lat: 35.1227, lng: 135.7634 },
+            { name: "Otagi Nenbutsuji", region: "Kyoto", hub: "Kyoto", type: "Temple/Art", rating: 4.8, time: 60, desc: "1200 statues de pierre.", lat: 35.0275, lng: 135.6617 },
+            { name: "Hozugawa Boat", region: "Kyoto", hub: "Kyoto", type: "Activité/Nature", rating: 4.4, time: 30, desc: "Descente de rivière.", lat: 35.0150, lng: 135.5800 },
+            { name: "Nintendo Museum", region: "Kyoto", hub: "Kyoto", type: "Musée/Geek", rating: 4.9, time: 20, desc: "Histoire de Nintendo à Uji.", lat: 34.8916, lng: 135.7924 },
+            { name: "Momiji-ya (Takao)", region: "Kyoto", hub: "Kyoto", type: "Restaurant", rating: 4.4, time: 50, desc: "Dîner Kawadoko.", lat: 35.0560, lng: 135.6796 },
 
-            // --- KANSAI (Osaka/Nara Hubs) ---
-            { name: "USJ (Universal)", region: "Osaka & Nara", hub: "Osaka", type: "Parc", rating: 4.8, transport: "JR Loop Line (20min)", time: 20, desc: "Super Nintendo World et Harry Potter. Incontournable mais bondé." },
-            { name: "Wakayama City", region: "Osaka & Nara", hub: "Osaka", type: "Ville", rating: 4.0, transport: "JR Hanwa (1h)", time: 60, desc: "Accès au château et porte d'entrée de la région de Koyasan." },
-            { name: "Kasuga-taisha", region: "Osaka & Nara", hub: "Nara (ou Osaka)", type: "Culture", rating: 4.6, transport: "Bus/Marche (local)", time: 15, desc: "Sanctuaire aux lanternes dans le parc de Nara." },
-            { name: "Wakakusayama", region: "Osaka & Nara", hub: "Nara (ou Osaka)", type: "Nature/Vue", rating: 4.5, transport: "Marche depuis parc (30min)", time: 30, desc: "Colline herbeuse offrant une vue panoramique sur Nara." },
-            { name: "Ōmihachiman", region: "Osaka & Nara", hub: "Kyoto/Osaka", type: "Ville/Canaux", rating: 4.4, transport: "JR Line (40min)", time: 40, desc: "Ville marchande historique au bord du lac Biwa. Balade en bateau." },
+            // OSAKA / NARA
+            { name: "USJ (Universal)", region: "Osaka & Nara", hub: "Osaka", type: "Parc", rating: 4.8, time: 20, desc: "Super Nintendo World.", lat: 34.6654, lng: 135.4323 },
+            { name: "Wakayama City", region: "Osaka & Nara", hub: "Osaka", type: "Ville", rating: 4.0, time: 60, desc: "Porte d'entrée Koyasan.", lat: 34.2304, lng: 135.1707 },
+            { name: "Kasuga-taisha", region: "Osaka & Nara", hub: "Nara", type: "Culture", rating: 4.6, time: 15, desc: "Sanctuaire aux lanternes.", lat: 34.6812, lng: 135.8484 },
+            { name: "Wakakusayama", region: "Osaka & Nara", hub: "Nara", type: "Nature/Vue", rating: 4.5, time: 30, desc: "Vue panoramique sur Nara.", lat: 34.6896, lng: 135.8573 },
+            { name: "Ōmihachiman", region: "Osaka & Nara", hub: "Kyoto", type: "Ville/Canaux", rating: 4.4, time: 40, desc: "Canaux historiques.", lat: 35.1386, lng: 136.0898 },
 
-            // --- KYOTO MER (North) ---
-            { name: "Amanohashidate", region: "Kyoto Nord (Mer)", hub: "Miyazu/Kinosaki", type: "Nature/Vue", rating: 4.4, transport: "Train (Local)", time: 15, desc: "Le 'Pont vers le Ciel'. Une des 3 plus belles vues du Japon." },
-            { name: "Ine Fishing Village", region: "Kyoto Nord (Mer)", hub: "Miyazu/Kinosaki", type: "Village/Unique", rating: 4.6, transport: "Bus depuis Amanohashidate (1h)", time: 60, desc: "Les Funaya (maisons-bateaux). Un des plus beaux villages du Japon." },
+            // KYOTO MER
+            { name: "Amanohashidate", region: "Kyoto Nord (Mer)", hub: "Miyazu", type: "Nature/Vue", rating: 4.4, time: 15, desc: "Pont vers le Ciel.", lat: 35.5683, lng: 135.1917 },
+            { name: "Ine Fishing Village", region: "Kyoto Nord (Mer)", hub: "Miyazu", type: "Village", rating: 4.6, time: 60, desc: "Maisons-bateaux Funaya.", lat: 35.6729, lng: 135.2913 },
 
-            // --- CHUGOKU (Hiroshima Hub) ---
-            { name: "Itsukushima (Île)", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Île/Sacré", rating: 4.7, transport: "Train + Ferry (50min)", time: 50, desc: "L'île sacrée de Miyajima. Cerfs, temples et érables." },
-            { name: "Itsukushima-jinja", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Sanctuaire", rating: 4.6, transport: "Sur place", time: 50, desc: "Le fameux Torii flottant dans la mer." },
-            { name: "Daishō-in", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Temple", rating: 4.7, transport: "Marche (15min)", time: 65, desc: "Temple bouddhiste magnifique au pied du mont Misen. Souvent oublié des foules." },
-            { name: "Senjōkaku", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Histoire", rating: 4.4, transport: "Marche (5min)", time: 55, desc: "Le pavillon aux 1000 tatamis. Une structure en bois impressionnante." },
-            { name: "Momijidani Park", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Nature", rating: 4.5, transport: "Marche (10min)", time: 60, desc: "Le parc des érables. Sublime en automne." },
-            { name: "Etajima", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Île/Vélo", rating: 4.2, transport: "Ferry (30min)", time: 30, desc: "Île dans la baie d'Hiroshima, calme, parfaite pour le cyclisme." },
+            // CHUGOKU
+            { name: "Itsukushima (Île)", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Île/Sacré", rating: 4.7, time: 50, desc: "Île sacrée de Miyajima.", lat: 34.2960, lng: 132.3197 },
+            { name: "Itsukushima-jinja", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Sanctuaire", rating: 4.6, time: 50, desc: "Torii flottant.", lat: 34.2959, lng: 132.3198 },
+            { name: "Daishō-in", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Temple", rating: 4.7, time: 65, desc: "Temple au pied du mont Misen.", lat: 34.2936, lng: 132.3168 },
+            { name: "Etajima", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Île/Vélo", rating: 4.2, time: 30, desc: "Cyclisme dans la baie.", lat: 34.2185, lng: 132.4578 },
 
-            // --- YAMAGUCHI (Shin-Yamaguchi Hub) ---
-            { name: "Rurikō-ji", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Temple", rating: 4.6, transport: "Bus (30min)", time: 30, desc: "Pagode à 5 étages, trésor national, dans un parc superbe." },
-            { name: "Akiyoshido Cave", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Nature/Grotte", rating: 4.6, transport: "Bus (45min)", time: 45, desc: "La plus grande grotte calcaire du Japon. Impressionnant." },
-            { name: "Beppu Benten Pond", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Nature", rating: 4.4, transport: "Train/Taxi (1h)", time: 60, desc: "Un étang d'une eau bleu cobalt irréelle." },
-            { name: "Motonosumi Shrine", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Photo/Vue", rating: 4.5, transport: "Train + Taxi (1h30)", time: 90, desc: "123 Torii rouges qui serpentent vers la mer. Difficile d'accès mais iconique." },
-            { name: "Mori Clan Burial", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Histoire", rating: 4.5, transport: "Train vers Hagi (1h30)", time: 90, desc: "À Hagi. Temple Tokoji. Lanternes de pierre mystiques dans la forêt." },
-            { name: "Shuhoinarimiya", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Sanctuaire", rating: 4.0, transport: "Proche Akiyoshido", time: 50, desc: "Petit sanctuaire près de la grotte." },
+            // YAMAGUCHI
+            { name: "Rurikō-ji", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Temple", rating: 4.6, time: 30, desc: "Pagode à 5 étages.", lat: 34.1883, lng: 131.4727 },
+            { name: "Akiyoshido Cave", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Grotte", rating: 4.6, time: 45, desc: "Immense grotte calcaire.", lat: 34.2272, lng: 131.3039 },
+            { name: "Beppu Benten Pond", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Nature", rating: 4.4, time: 60, desc: "Eau bleu cobalt.", lat: 34.2338, lng: 131.2520 },
+            { name: "Motonosumi Shrine", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Photo/Vue", rating: 4.5, time: 90, desc: "123 Torii rouges vers la mer.", lat: 34.4284, lng: 131.0567 },
+            { name: "Mori Clan Burial", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Histoire", rating: 4.5, time: 90, desc: "Lanternes de pierre à Hagi.", lat: 34.4103, lng: 131.4172 },
 
-            // --- KYUSHU (Nagasaki & Kumamoto Hubs) ---
-            { name: "Unzen Jigoku", region: "Kyūshū (Nord)", hub: "Nagasaki", type: "Volcan", rating: 4.5, transport: "Bus (1h40)", time: 100, desc: "Champs de fumerolles volcaniques actifs." },
-            { name: "Shimabara Yusui-kan", region: "Kyūshū (Nord)", hub: "Nagasaki", type: "Ville", rating: 4.2, transport: "Train (1h30)", time: 90, desc: "La ville des carpes nageant dans les canaux." },
-            { name: "Takachiho Gorge", region: "Kyūshū (Centre)", hub: "Kumamoto/Aso", type: "Nature/Mythe", rating: 4.7, transport: "Bus (2h30)", time: 150, desc: "Gorges volcaniques avec chute d'eau. Barque possible (très prisé)." },
-            { name: "Amanoiwato-jinja", region: "Kyūshū (Centre)", hub: "Kumamoto/Aso", type: "Mythe", rating: 4.5, transport: "Bus depuis Gorge (20min)", time: 170, desc: "La grotte où la déesse du soleil Amaterasu s'est cachée." },
-            { name: "Kusasenrigahama", region: "Kyūshū (Centre)", hub: "Kumamoto/Aso", type: "Nature/Volcan", rating: 4.6, transport: "Bus vers Aso (1h)", time: 60, desc: "Vaste prairie verdoyante au pied du volcan fumant Mont Aso." },
-            { name: "Kamishikimi Kumano", region: "Kyūshū (Centre)", hub: "Kumamoto/Aso", type: "Sanctuaire/Anime", rating: 4.8, transport: "Train+Taxi (1h30)", time: 90, desc: "Sanctuaire dans la forêt. Décor du film 'Hotarubi no Mori e'." },
+            // KYUSHU
+            { name: "Unzen Jigoku", region: "Kyūshū (Nord)", hub: "Nagasaki", type: "Volcan", rating: 4.5, time: 100, desc: "Champs de fumerolles.", lat: 32.7423, lng: 130.2604 },
+            { name: "Takachiho Gorge", region: "Kyūshū (Centre)", hub: "Kumamoto", type: "Nature/Mythe", rating: 4.7, time: 150, desc: "Gorges volcaniques.", lat: 32.7168, lng: 131.3025 },
+            { name: "Amanoiwato-jinja", region: "Kyūshū (Centre)", hub: "Kumamoto", type: "Mythe", rating: 4.5, time: 170, desc: "Grotte d'Amaterasu.", lat: 32.7388, lng: 131.3486 },
+            { name: "Kusasenrigahama", region: "Kyūshū (Centre)", hub: "Kumamoto", type: "Volcan", rating: 4.6, time: 60, desc: "Prairie du Mont Aso.", lat: 32.8856, lng: 131.0506 },
+            { name: "Kamishikimi Kumano", region: "Kyūshū (Centre)", hub: "Kumamoto", type: "Anime", rating: 4.8, time: 90, desc: "Décor de 'Hotarubi no Mori e'.", lat: 32.8378, lng: 131.1578 },
 
-            // --- YAKUSHIMA ---
-            { name: "Kokemusu Forest", region: "Yakushima", hub: "Miyanoura", type: "Nature", rating: 4.8, transport: "Bus+Rando", time: 60, desc: "Forêt de mousse primaire. Inspiration Ghibli." },
+            // YAKUSHIMA
+            { name: "Kokemusu Forest", region: "Yakushima", hub: "Miyanoura", type: "Nature", rating: 4.8, time: 60, desc: "Forêt de mousse.", lat: 30.3340, lng: 130.5286 },
 
-            // --- ALPES & CHUBU ---
-            { name: "Togakushi Shrine", region: "Alpes Japonaises", hub: "Nagano", type: "Montagne", rating: 4.6, transport: "Bus (1h)", time: 60, desc: "Allée de cèdres géants et sanctuaire ninja." },
-            { name: "Jigokudani Park", region: "Alpes Japonaises", hub: "Nagano", type: "Nature/Singes", rating: 4.5, transport: "Bus (50min)", time: 50, desc: "Les singes des neiges se baignant dans les sources chaudes." },
-            { name: "Kamikōchi", region: "Alpes Japonaises", hub: "Matsumoto", type: "Rando/Alpes", rating: 4.8, transport: "Train+Bus (1h30)", time: 90, desc: "Vallée alpine spectaculaire. Fermé en hiver." },
-            { name: "Shirakawa-gō", region: "Alpes Japonaises", hub: "Kanazawa/Takayama", type: "Village", rating: 4.6, transport: "Bus (1h15)", time: 75, desc: "Villages aux toits de chaume classés UNESCO." },
-            { name: "Kanazawa (Ville)", region: "Alpes Japonaises", hub: "Kanazawa", type: "Ville", rating: 4.5, transport: "Local", time: 0, desc: "Jardin Kenroku-en, quartier des samouraïs et géishas." },
-            { name: "Gifu (Ville)", region: "Alpes Japonaises", hub: "Nagoya/Gifu", type: "Ville", rating: 4.0, transport: "Train", time: 0, desc: "Château de Gifu et pêche au cormoran." },
+            // ALPES & CHUBU
+            { name: "Togakushi Shrine", region: "Alpes Japonaises", hub: "Nagano", type: "Montagne", rating: 4.6, time: 60, desc: "Allée de cèdres géants.", lat: 36.7554, lng: 138.0838 },
+            { name: "Jigokudani Park", region: "Alpes Japonaises", hub: "Nagano", type: "Singes", rating: 4.5, time: 50, desc: "Singes des neiges.", lat: 36.7324, lng: 138.4621 },
+            { name: "Kamikōchi", region: "Alpes Japonaises", hub: "Matsumoto", type: "Rando", rating: 4.8, time: 90, desc: "Vallée alpine.", lat: 36.2527, lng: 137.6369 },
+            { name: "Shirakawa-gō", region: "Alpes Japonaises", hub: "Takayama", type: "Village", rating: 4.6, time: 75, desc: "Toits de chaume.", lat: 36.2566, lng: 136.9043 },
+            { name: "Kanazawa (Ville)", region: "Alpes Japonaises", hub: "Kanazawa", type: "Ville", rating: 4.5, time: 0, desc: "Jardin Kenroku-en.", lat: 36.5613, lng: 136.6562 },
+            { name: "Gifu (Ville)", region: "Alpes Japonaises", hub: "Gifu", type: "Ville", rating: 4.0, time: 0, desc: "Château de Gifu.", lat: 35.4233, lng: 136.7607 },
 
-            // --- TOHOKU (Nord) ---
-            { name: "Takayama Inari", region: "Tohoku (Aomori)", hub: "Hirosaki/Aomori", type: "Sanctuaire", rating: 4.6, transport: "Train+Taxi (1h30)", time: 90, desc: "Jardin japonais et torii rouges. Très isolé tout au nord." },
+            // TOHOKU
+            { name: "Takayama Inari", region: "Tohoku (Aomori)", hub: "Hirosaki", type: "Sanctuaire", rating: 4.6, time: 90, desc: "Torii rouges au nord.", lat: 40.9234, lng: 140.2974 },
 
-            // --- ONSEN / DIVERS ---
-            { name: "Takaragawa Onsen", region: "Gunma (Onsen)", hub: "Minakami", type: "Onsen", rating: 4.4, transport: "Navette (30min)", time: 30, desc: "Immense rotenburo mixte le long de la rivière." },
-            { name: "Amagisou (Izu)", region: "Izu Peninsula", hub: "Atami/Ito", type: "Onsen", rating: 4.2, transport: "Bus (1h)", time: 60, desc: "Onsen près des chutes de Kawazu Nanadaru." },
-            { name: "Nachi Falls", region: "Wakayama (Sud)", hub: "Kii-Katsuura", type: "Nature", rating: 4.6, transport: "Bus (30min)", time: 30, desc: "La chute d'eau sacrée de Kumano Kodo." }
+            // ONSEN
+            { name: "Takaragawa Onsen", region: "Gunma (Onsen)", hub: "Minakami", type: "Onsen", rating: 4.4, time: 30, desc: "Rotenburo mixte rivière.", lat: 36.8441, lng: 139.0435 },
+            { name: "Amagisou (Izu)", region: "Izu Peninsula", hub: "Atami", type: "Onsen", rating: 4.2, time: 60, desc: "Chutes Kawazu.", lat: 34.7936, lng: 138.9324 },
+            { name: "Nachi Falls", region: "Wakayama (Sud)", hub: "Kii-Katsuura", type: "Nature", rating: 4.6, time: 30, desc: "Chute sacrée.", lat: 33.6756, lng: 135.8876 }
         ];
 
-        // --- REGIONS CONFIGURATION ---
+        // --- CONFIG ---
         const regionsData = {
             "Tokyo & Kanto": { desc: "Mégalopole et escapades historiques.", hub: "Tokyo", color: "indigo" },
-            "Mont Fuji": { desc: "La région des 5 lacs au pied du mont sacré.", hub: "Kawaguchiko", color: "sky" },
-            "Kyoto": { desc: "L'ancienne capitale impériale. Temples et jardins.", hub: "Kyoto", color: "violet" },
-            "Osaka & Nara": { desc: "Divertissement urbain et cerfs sacrés.", hub: "Osaka", color: "amber" },
-            "Kyoto Nord (Mer)": { desc: "Le Japon côté mer, loin des foules.", hub: "Miyazu", color: "teal" },
-            "Hiroshima & Miyajima": { desc: "Histoire tragique et île des dieux.", hub: "Hiroshima", color: "rose" },
-            "Yamaguchi": { desc: "Grottes et sanctuaires spectaculaires de l'ouest.", hub: "Shin-Yamaguchi", color: "orange" },
-            "Kyūshū (Nord)": { desc: "Volcans et histoire chrétienne.", hub: "Nagasaki", color: "red" },
-            "Kyūshū (Centre)": { desc: "Terres de mythes et de volcans actifs.", hub: "Kumamoto", color: "emerald" },
-            "Yakushima": { desc: "Île sauvage et forêts millénaires.", hub: "Miyanoura", color: "green" },
-            "Alpes Japonaises": { desc: "Le toit du Japon. Neige et traditions.", hub: "Nagano/Kanazawa", color: "slate" },
-            "Tohoku (Aomori)": { desc: "Le grand Nord. Sauvage et authentique.", hub: "Hirosaki", color: "cyan" },
-            "Gunma (Onsen)": { desc: "La culture du bain en montagne.", hub: "Minakami", color: "stone" },
-            "Izu Peninsula": { desc: "Sources chaudes et cascades.", hub: "Atami", color: "lime" },
-            "Wakayama (Sud)": { desc: "Pèlerinage sacré de Kumano.", hub: "Kii-Katsuura", color: "fuchsia" }
+            "Mont Fuji": { desc: "La région des 5 lacs.", hub: "Kawaguchiko", color: "sky" },
+            "Kyoto": { desc: "Ancienne capitale.", hub: "Kyoto", color: "violet" },
+            "Osaka & Nara": { desc: "Divertissement et cerfs.", hub: "Osaka", color: "amber" },
+            "Kyoto Nord (Mer)": { desc: "Côté mer.", hub: "Miyazu", color: "teal" },
+            "Hiroshima & Miyajima": { desc: "Histoire et sacré.", hub: "Hiroshima", color: "rose" },
+            "Yamaguchi": { desc: "Grottes et torii.", hub: "Shin-Yamaguchi", color: "orange" },
+            "Kyūshū (Nord)": { desc: "Volcans et histoire.", hub: "Nagasaki", color: "red" },
+            "Kyūshū (Centre)": { desc: "Mythes et volcans.", hub: "Kumamoto", color: "emerald" },
+            "Yakushima": { desc: "Forêts millénaires.", hub: "Miyanoura", color: "green" },
+            "Alpes Japonaises": { desc: "Neige et traditions.", hub: "Nagano", color: "slate" },
+            "Tohoku (Aomori)": { desc: "Grand Nord sauvage.", hub: "Hirosaki", color: "cyan" },
+            "Gunma (Onsen)": { desc: "Bains en montagne.", hub: "Minakami", color: "stone" },
+            "Izu Peninsula": { desc: "Sources et mer.", hub: "Atami", color: "lime" },
+            "Wakayama (Sud)": { desc: "Pèlerinage sacré.", hub: "Kii-Katsuura", color: "fuchsia" }
         };
 
-        // --- APP LOGIC ---
+        // --- PALETTE COULEURS (Tailwind 500/600) ---
+        const colorPalette = {
+            indigo: '#4f46e5',
+            sky:    '#0ea5e9',
+            violet: '#8b5cf6',
+            amber:  '#f59e0b',
+            teal:   '#14b8a6',
+            rose:   '#f43f5e',
+            orange: '#f97316',
+            red:    '#ef4444',
+            emerald:'#10b981',
+            green:  '#22c55e',
+            slate:  '#64748b',
+            cyan:   '#06b6d4',
+            stone:  '#78716c',
+            lime:   '#84cc16',
+            fuchsia:'#d946ef'
+        };
+
         const app = {
             currentView: 'dashboard',
+            map: null,
             
             init() {
                 this.renderDashboard();
                 this.renderOverviewChart();
+                // Delay map render slightly to ensure container is ready
+                setTimeout(() => this.renderMap(), 100);
             },
 
             goHome() {
                 document.getElementById('dashboard-view').classList.remove('hidden');
                 document.getElementById('region-view').classList.add('hidden');
                 window.scrollTo(0, 0);
+                // Force map resize when showing again
+                if(this.map) { setTimeout(() => this.map.invalidateSize(), 100); }
             },
 
             filterByRegion(region) {
@@ -332,19 +325,62 @@
                 window.scrollTo(0, 0);
             },
 
+            renderMap() {
+                if (this.map) return;
+                
+                // Centré sur le Japon
+                this.map = L.map('main-map').setView([36.2048, 138.2529], 5);
+
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; OpenStreetMap &copy; CARTO',
+                    subdomains: 'abcd',
+                    maxZoom: 19
+                }).addTo(this.map);
+
+                rawData.forEach(spot => {
+                    if (spot.lat && spot.lng) {
+                        // 1. Récupérer la couleur de la région
+                        const regionInfo = regionsData[spot.region];
+                        const colorName = regionInfo ? regionInfo.color : 'slate';
+                        const hexColor = colorPalette[colorName] || '#64748b';
+
+                        // 2. Créer un marqueur circulaire coloré
+                        const m = L.circleMarker([spot.lat, spot.lng], {
+                            radius: 8,              // Taille du point
+                            fillColor: hexColor,    // Couleur de la région
+                            color: '#ffffff',       // Bordure blanche
+                            weight: 2,              // Épaisseur bordure
+                            opacity: 1,
+                            fillOpacity: 0.9        // Opacité du remplissage
+                        });
+
+                        // 3. Popup (inchangée)
+                        m.bindPopup(`
+                            <div class="text-center font-sans">
+                                <h4 class="font-bold" style="color: ${hexColor}">${spot.name}</h4>
+                                <p class="text-xs text-gray-600 mb-2">${spot.type}</p>
+                                <span class="text-[10px] text-white px-2 py-1 rounded" style="background-color: ${hexColor}">
+                                    ${spot.region}
+                                </span>
+                            </div>
+                        `);
+                        
+                        m.addTo(this.map);
+                    }
+                });
+            },
+
             renderDashboard() {
                 document.getElementById('total-count-hero').innerText = rawData.length;
                 document.getElementById('stat-total-spots').innerText = rawData.length;
                 document.getElementById('stat-regions-count').innerText = Object.keys(regionsData).length;
 
-                // Calc percentages
                 const nature = rawData.filter(i => /nature|rando|volcan|montagne|jardin|vue|île/i.test(i.type)).length;
                 const culture = rawData.filter(i => /temple|sanctuaire|ville|histoire|musée/i.test(i.type)).length;
                 
                 document.getElementById('stat-nature-percent').innerText = Math.round((nature/rawData.length)*100) + "%";
                 document.getElementById('stat-culture-percent').innerText = Math.round((culture/rawData.length)*100) + "%";
 
-                // Grid
                 const grid = document.getElementById('regions-grid');
                 grid.innerHTML = '';
                 
@@ -381,10 +417,7 @@
                 document.getElementById('region-desc').innerText = rData.desc;
                 document.getElementById('hub-city').innerText = rData.hub;
                 document.getElementById('region-tag').innerText = `${spots.length} Lieux`;
-                
                 document.querySelectorAll('.hub-name-span').forEach(e => e.innerText = rData.hub);
-
-                // Styling logic for header (simple gradient swap could go here, sticking to dark theme for consistency)
 
                 const list = document.getElementById('activities-list');
                 list.innerHTML = '';
@@ -404,7 +437,7 @@
                             <p class="text-xs text-stone-500 mt-1 mb-2 line-clamp-2 leading-relaxed">${spot.desc}</p>
                             <div class="flex flex-wrap gap-2 text-[10px] font-medium uppercase tracking-wide text-stone-400">
                                 <span class="bg-stone-50 px-2 py-1 rounded">⏱ ${spot.time} min</span>
-                                <span class="bg-stone-50 px-2 py-1 rounded">🚌 ${spot.transport}</span>
+                                <span class="bg-stone-50 px-2 py-1 rounded">🚌 ${spot.transport || 'Local'}</span>
                             </div>
                         </div>
                     `;
@@ -415,17 +448,16 @@
             },
 
             getEmoji(type) {
-                if(/nature|jardin/i.test(type)) return '🌿';
+                if(/nature|jardin|grotte/i.test(type)) return '🌿';
                 if(/temple|sanctuaire/i.test(type)) return '⛩️';
-                if(/ville|shopping/i.test(type)) return '🏙️';
-                if(/eau|volcan|onsen/i.test(type)) return '🌊';
+                if(/ville|shopping|geek/i.test(type)) return '🏙️';
+                if(/eau|volcan|onsen|île/i.test(type)) return '🌊';
                 if(/histoire|musée/i.test(type)) return '📜';
                 return '📍';
             },
 
             renderOverviewChart() {
                 const ctx = document.getElementById('overviewChart').getContext('2d');
-                // Distribution by Region
                 const counts = {};
                 rawData.forEach(r => counts[r.region] = (counts[r.region]||0)+1);
                 
@@ -435,11 +467,7 @@
                         labels: Object.keys(counts),
                         datasets: [{
                             data: Object.values(counts),
-                            backgroundColor: [
-                                '#4f46e5', '#0ea5e9', '#8b5cf6', '#f59e0b', '#14b8a6', 
-                                '#f43f5e', '#f97316', '#ef4444', '#10b981', '#22c55e',
-                                '#64748b', '#06b6d4', '#78716c', '#84cc16', '#d946ef'
-                            ],
+                            backgroundColor: ['#4f46e5', '#0ea5e9', '#8b5cf6', '#f59e0b', '#14b8a6', '#f43f5e', '#f97316', '#ef4444', '#10b981', '#22c55e', '#64748b', '#06b6d4', '#78716c', '#84cc16', '#d946ef'],
                             borderWidth: 0
                         }]
                     },
@@ -456,7 +484,6 @@
                 const ctx = document.getElementById('logisticsChart').getContext('2d');
                 const sorted = [...spots].sort((a,b) => a.time - b.time);
                 
-                // Destroy old if exists (simple implementation usually requires tracking chart instance)
                 if(window.myBarChart) window.myBarChart.destroy();
 
                 window.myBarChart = new Chart(ctx, {
