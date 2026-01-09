@@ -24,14 +24,16 @@
         }
         #main-map {
             z-index: 1;
-            height: 450px;
+            height: 100%; /* S'adapte au conteneur parent */
             width: 100%;
-            border-radius: 0.75rem;
+            border-radius: 0.5rem;
         }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        /* Custom Scrollbar pour la légende */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        
         .animate-fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -101,12 +103,29 @@
             </section>
 
             <section class="bg-white rounded-2xl p-6 shadow-sm border border-stone-100">
-                <h3 class="text-xl font-bold mb-4 text-stone-800 border-l-4 border-indigo-500 pl-3">Carte Interactive</h3>
-                <div id="main-map" class="shadow-inner border border-stone-200"></div>
+                <div class="flex justify-between items-center mb-4 border-l-4 border-indigo-500 pl-3">
+                    <h3 class="text-xl font-bold text-stone-800">Carte Interactive</h3>
+                    <div class="text-xs text-stone-400 font-medium hidden md:block">Cliquez sur un hub à droite pour filtrer</div>
+                </div>
+                
+                <div class="flex flex-col lg:flex-row gap-6 h-[500px] lg:h-[450px]">
+                    <div class="w-full lg:w-3/4 h-64 lg:h-full rounded-xl shadow-inner border border-stone-200 relative">
+                        <div id="main-map"></div>
+                    </div>
+                    
+                    <div class="w-full lg:w-1/4 flex flex-col h-full overflow-hidden">
+                        <div class="flex justify-between items-center mb-2 px-1">
+                            <h4 class="text-xs font-bold text-stone-500 uppercase tracking-wider">Hubs & Régions</h4>
+                            <button onclick="app.resetMapFilter()" class="text-[10px] text-indigo-600 hover:underline cursor-pointer font-bold">Tout Afficher</button>
+                        </div>
+                        <div id="map-legend" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-2 pb-2">
+                            </div>
+                    </div>
+                </div>
             </section>
 
             <section id="regions-section">
-                <h3 class="text-xl font-bold mb-6 text-stone-800 border-l-4 border-indigo-500 pl-3">Vos Zones d'Exploration</h3>
+                <h3 class="text-xl font-bold mb-6 text-stone-800 border-l-4 border-indigo-500 pl-3">Détail des Zones</h3>
                 <div id="regions-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     </div>
             </section>
@@ -285,10 +304,13 @@
         const app = {
             currentView: 'dashboard',
             map: null,
+            markersLayer: null,
+            activeMapFilter: null,
             
             init() {
                 this.renderDashboard();
                 this.renderOverviewChart();
+                this.renderLegend();
                 setTimeout(() => this.renderMap(), 100);
             },
 
@@ -310,7 +332,120 @@
                 window.scrollTo(0, 0);
             },
 
-            // --- NOUVELLE FONCTION DASHBOARD MODIFIÉE ---
+            // --- MAP FILTERING LOGIC ---
+            toggleMapFilter(regionName) {
+                if (this.activeMapFilter === regionName) {
+                    this.resetMapFilter();
+                } else {
+                    this.activeMapFilter = regionName;
+                    this.updateMapMarkers();
+                    this.renderLegend(); // Mise à jour visuelle des boutons
+                }
+            },
+
+            resetMapFilter() {
+                this.activeMapFilter = null;
+                this.updateMapMarkers();
+                this.renderLegend();
+            },
+
+            renderLegend() {
+                const legendContainer = document.getElementById('map-legend');
+                legendContainer.innerHTML = '';
+
+                Object.keys(regionsData).forEach(rName => {
+                    const rData = regionsData[rName];
+                    const count = rawData.filter(s => s.region === rName).length;
+                    if(count === 0) return;
+
+                    const isActive = this.activeMapFilter === rName;
+                    
+                    // Style conditionnel si actif
+                    const bgClass = isActive ? `bg-${rData.color}-100 border-${rData.color}-500 ring-1 ring-${rData.color}-500` : 'bg-white border-stone-100 hover:bg-stone-50';
+                    
+                    const btn = document.createElement('div');
+                    btn.className = `${bgClass} flex items-center gap-3 p-2 rounded-lg border transition-all cursor-pointer select-none`;
+                    btn.onclick = () => this.toggleMapFilter(rName);
+                    
+                    btn.innerHTML = `
+                        <span class="w-3 h-3 rounded-full flex-shrink-0 shadow-sm border border-white" style="background-color: ${colorPalette[rData.color]}"></span>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-baseline">
+                                <span class="text-xs font-bold text-stone-700 truncate">${rData.hub}</span>
+                                <span class="text-[10px] text-stone-400 font-mono ml-2">${count}</span>
+                            </div>
+                            <div class="text-[10px] text-stone-500 truncate opacity-80">${rName}</div>
+                        </div>
+                        ${isActive ? '<span class="text-xs">✓</span>' : ''}
+                    `;
+                    legendContainer.appendChild(btn);
+                });
+            },
+
+            renderMap() {
+                if (this.map) return;
+                this.map = L.map('main-map').setView([36.2048, 138.2529], 5);
+
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; OpenStreetMap &copy; CARTO',
+                    subdomains: 'abcd',
+                    maxZoom: 19
+                }).addTo(this.map);
+
+                // Groupe de layers pour gérer facilement les suppressions/ajouts
+                this.markersLayer = L.layerGroup().addTo(this.map);
+                this.updateMapMarkers();
+            },
+
+            updateMapMarkers() {
+                if (!this.markersLayer) return;
+                this.markersLayer.clearLayers();
+                
+                const bounds = [];
+
+                rawData.forEach(spot => {
+                    // FILTRE : Si un filtre est actif et ne correspond pas, on ignore
+                    if (this.activeMapFilter && spot.region !== this.activeMapFilter) return;
+
+                    if (spot.lat && spot.lng) {
+                        const regionInfo = regionsData[spot.region];
+                        const colorName = regionInfo ? regionInfo.color : 'slate';
+                        const hexColor = colorPalette[colorName] || '#64748b';
+
+                        const m = L.circleMarker([spot.lat, spot.lng], {
+                            radius: 8,
+                            fillColor: hexColor,
+                            color: '#ffffff',
+                            weight: 2,
+                            opacity: 1,
+                            fillOpacity: 0.9
+                        });
+
+                        m.bindPopup(`
+                            <div class="text-center font-sans">
+                                <h4 class="font-bold" style="color: ${hexColor}">${spot.name}</h4>
+                                <p class="text-xs text-gray-600 mb-2">${spot.type}</p>
+                                <button onclick="app.selectRegion('${spot.region}')" class="mt-2 text-[10px] bg-stone-100 text-stone-600 px-2 py-1 rounded hover:bg-stone-200">
+                                    Voir Détails Région
+                                </button>
+                            </div>
+                        `);
+                        this.markersLayer.addLayer(m);
+                        bounds.push([spot.lat, spot.lng]);
+                    }
+                });
+
+                // Auto-zoom
+                if (bounds.length > 0) {
+                    if (this.activeMapFilter) {
+                        this.map.flyToBounds(bounds, { padding: [50, 50], maxZoom: 10 });
+                    } else {
+                        // Vue par défaut si aucun filtre
+                        this.map.flyTo([36.2048, 138.2529], 5);
+                    }
+                }
+            },
+
             renderDashboard() {
                 document.getElementById('total-count-hero').innerText = rawData.length;
                 document.getElementById('stat-total-spots').innerText = rawData.length;
@@ -333,10 +468,8 @@
                     const count = regionCounts[rName] || 0;
                     if(count === 0) return;
 
-                    // Filtrer les lieux de cette région
                     const regionSpots = rawData.filter(s => s.region === rName);
                     
-                    // Création de la liste HTML des lieux
                     const spotsListHTML = regionSpots.map(s => `
                         <li class="text-sm text-stone-700 truncate flex items-center gap-2 py-0.5">
                             <span class="opacity-70 text-base">${this.getEmoji(s.type)}</span> 
@@ -345,7 +478,6 @@
                     `).join('');
 
                     const el = document.createElement('div');
-                    // Application de la couleur de fond (pastel -50) et bordure
                     el.className = `bg-${rData.color}-50 p-5 rounded-xl border border-${rData.color}-200 shadow-sm hover:shadow-md hover:scale-[1.01] cursor-pointer transition-all group flex flex-col h-full`;
                     el.onclick = () => this.selectRegion(rName);
                     el.innerHTML = `
@@ -367,45 +499,6 @@
                         </div>
                     `;
                     grid.appendChild(el);
-                });
-            },
-
-            renderMap() {
-                if (this.map) return;
-                this.map = L.map('main-map').setView([36.2048, 138.2529], 5);
-
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                    attribution: '&copy; OpenStreetMap &copy; CARTO',
-                    subdomains: 'abcd',
-                    maxZoom: 19
-                }).addTo(this.map);
-
-                rawData.forEach(spot => {
-                    if (spot.lat && spot.lng) {
-                        const regionInfo = regionsData[spot.region];
-                        const colorName = regionInfo ? regionInfo.color : 'slate';
-                        const hexColor = colorPalette[colorName] || '#64748b';
-
-                        const m = L.circleMarker([spot.lat, spot.lng], {
-                            radius: 8,
-                            fillColor: hexColor,
-                            color: '#ffffff',
-                            weight: 2,
-                            opacity: 1,
-                            fillOpacity: 0.9
-                        });
-
-                        m.bindPopup(`
-                            <div class="text-center font-sans">
-                                <h4 class="font-bold" style="color: ${hexColor}">${spot.name}</h4>
-                                <p class="text-xs text-gray-600 mb-2">${spot.type}</p>
-                                <span class="text-[10px] text-white px-2 py-1 rounded" style="background-color: ${hexColor}">
-                                    ${spot.region}
-                                </span>
-                            </div>
-                        `);
-                        m.addTo(this.map);
-                    }
                 });
             },
 
