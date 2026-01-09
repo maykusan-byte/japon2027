@@ -221,329 +221,391 @@
     <script>
         // --- DATA : IMAGES LOCALES & PAS DE FAUSSES REVIEWS ---
         const rawData = [
+
             // --- KANTO (Tokyo Hub) ---
+
             { 
                 name: "Shinjuku", region: "Tokyo & Kanto", hub: "Tokyo", type: "Ville/Shopping", rating: 4.5, time: 0, 
                 desc: "Le cœur battant de Tokyo. Néons, foules, Godzilla head et vie nocturne.", 
                 lat: 35.6938, lng: 139.7034,
-                image: "images/shinjuku.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Shinjuku-neon_Tokyo.jpg"
             },
+
             { 
                 name: "Akihabara", region: "Tokyo & Kanto", hub: "Tokyo", type: "Ville/Geek", rating: 4.3, time: 15, 
                 desc: "La mecque de l'électronique et des otaku. Maids cafés et figurines partout.", 
                 lat: 35.6984, lng: 139.7731,
-                image: "images/akihabara.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Akihabara_picture.jpg"
             },
+
             { 
                 name: "Ueno", region: "Tokyo & Kanto", hub: "Tokyo", type: "Culture/Parc", rating: 4.4, time: 20, 
                 desc: "Grands musées nationaux, zoo, et le marché populaire d'Ameyoko.", 
                 lat: 35.7141, lng: 139.7741,
-                image: "images/ueno.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Ueno_park.jpg"
             },
+
             { 
                 name: "Ikebukuro", region: "Tokyo & Kanto", hub: "Tokyo", type: "Ville/Shopping", rating: 4.2, time: 25, 
                 desc: "Alternative à Shinjuku. Centre Pokémon et Sunshine City.", 
                 lat: 35.7289, lng: 139.7118,
-                image: "images/ikebukuro.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Ikebukuro_-_Streets.jpg"
             },
+
             { 
                 name: "Kamakura (Ville)", region: "Tokyo & Kanto", hub: "Tokyo", type: "Culture/Temples", rating: 4.6, time: 60, 
                 desc: "Le grand Bouddha et les temples zen. Ambiance côtière détendue.", 
                 lat: 35.3197, lng: 139.5502,
-                image: "images/kamakura.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Kamakura-daibutsu.jpg"
             },
+
             { 
                 name: "Kamakurakōkō-Mae", region: "Tokyo & Kanto", hub: "Tokyo", type: "Photo/Anime", rating: 4.3, time: 75, 
                 desc: "Le passage à niveau légendaire du générique de Slam Dunk. Vue sur mer.", 
                 lat: 35.3067, lng: 139.5019,
-                image: "images/kamakurakoko.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Kamakurakokomae_station_2020_8_21.jpg"
             },
+
             { 
                 name: "Katori (Chiba)", region: "Tokyo & Kanto", hub: "Tokyo", type: "Culture/Tradition", rating: 4.4, time: 100, 
                 desc: "La 'Petite Edo' de Chiba. Canaux historiques et grand sanctuaire.", 
                 lat: 35.8907, lng: 140.4992,
-                image: "images/katori.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/A_view_of_Sawara-Honmachi.JPG"
             },
             
             // --- FUJI FIVE LAKES ---
+
             { 
                 name: "Parc Oishi", region: "Mont Fuji", hub: "Kawaguchiko", type: "Nature/Vue", rating: 4.5, time: 20, 
                 desc: "La vue classique du Fuji avec le lac et les fleurs au premier plan.", 
                 lat: 35.5228, lng: 138.7441,
-                image: "images/oishi_park.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Mount_Fuji_from_Oishi_Park.jpg"
             },
+
             { 
                 name: "Chureito Pagoda", region: "Mont Fuji", hub: "Kawaguchiko", type: "Vue/Icône", rating: 4.7, time: 30, 
                 desc: "Arakurayama Sengen Park. LA photo du Japon : Pagode + Cerisiers + Fuji.", 
                 lat: 35.5013, lng: 138.8013,
-                image: "images/chureito.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Chureito_Pagoda.jpg"
             },
 
+
             // --- KANSAI CENTRAL (Kyoto Hub) ---
+
             { 
                 name: "Gion", region: "Kyoto", hub: "Kyoto", type: "Culture/Ville", rating: 4.5, time: 15, 
                 desc: "Le quartier des Geishas. Rues pavées, maisons de thé et charme ancien.", 
                 lat: 35.0037, lng: 135.7778,
-                image: "images/gion.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Gion_Kyoto.jpg"
             },
+
             { 
                 name: "Ninna-ji", region: "Kyoto", hub: "Kyoto", type: "Temple/UNESCO", rating: 4.6, time: 30, 
                 desc: "Immense complexe, célèbre pour ses cerisiers tardifs Omuro.", 
                 lat: 35.0280, lng: 135.7138,
-                image: "images/ninnaji.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Ninnaji_Kyoto06s3s4410.jpg"
             },
+
             { 
                 name: "Renge-ji", region: "Kyoto", hub: "Kyoto", type: "Temple/Jardin", rating: 4.7, time: 40, 
                 desc: "Un petit joyau caché au nord. Jardin sublime, calme absolu.", 
                 lat: 35.0601, lng: 135.8041,
-                image: "images/rengeji.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Ninna-ji_Renge-ji_%28Ukyo-ku%2C_Kyoto%29_hdsr_Temple_S5_003.jpg"
             },
+
             { 
                 name: "Kurama-dera", region: "Kyoto", hub: "Kyoto", type: "Montagne/Rando", rating: 4.6, time: 50, 
                 desc: "Temple de montagne mystique, terre des Tengu. Rando vers Kibune possible.", 
                 lat: 35.1182, lng: 135.7674,
-                image: "images/kurama.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Kurama-dera_Tahoto.jpg"
             },
+
             { 
                 name: "Kifune Shrine", region: "Kyoto", hub: "Kyoto", type: "Sanctuaire/Eau", rating: 4.5, time: 60, 
                 desc: "Célèbre pour ses lanternes rouges longeant l'escalier de pierre.", 
                 lat: 35.1227, lng: 135.7634,
-                image: "images/kifune.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Kifune_Shrine.jpg"
             },
+
             { 
                 name: "Otagi Nenbutsuji", region: "Kyoto", hub: "Kyoto", type: "Temple/Art", rating: 4.8, time: 60, 
                 desc: "Le temple aux 1200 statues de pierre aux visages amusants.", 
                 lat: 35.0275, lng: 135.6617,
-                image: "images/otagi.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Otagi_nenbutsuji17s3s4592.jpg"
             },
+
             { 
                 name: "Hozugawa Boat", region: "Kyoto", hub: "Kyoto", type: "Activité/Nature", rating: 4.4, time: 30, 
                 desc: "Descente de rivière traditionnelle en bateau vers Arashiyama.", 
                 lat: 35.0150, lng: 135.5800,
-                image: "images/hozugawa.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Hozugawa-Kudari_201126g.jpg"
             },
+
             { 
                 name: "Nintendo Museum", region: "Kyoto", hub: "Kyoto", type: "Musée/Geek", rating: 4.9, time: 20, 
                 desc: "À Uji. Le nouveau musée officiel retraçant l'histoire de Nintendo.", 
                 lat: 34.8916, lng: 135.7924,
-                image: "images/nintendo_museum.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Nintendo_Museum_Entrance.jpg"
             },
+
             { 
                 name: "Momiji-ya (Takao)", region: "Kyoto", hub: "Kyoto", type: "Restaurant", rating: 4.4, time: 50, 
                 desc: "Dîner Kawadoko sur la rivière en été, ou érables en automne à Takao.", 
                 lat: 35.0560, lng: 135.6796,
-                image: "images/momijiya.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Momijiya_Annex_Kawa-no-iori.jpg"
             },
 
+
             // --- KANSAI (Osaka/Nara) ---
+
             { 
                 name: "USJ (Universal)", region: "Osaka & Nara", hub: "Osaka", type: "Parc", rating: 4.8, time: 20, 
                 desc: "Super Nintendo World et Harry Potter. Incontournable mais bondé.", 
                 lat: 34.6654, lng: 135.4323,
-                image: "images/usj.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Usj_osaka_%2852961760903%29.jpg"
             },
+
             { 
                 name: "Wakayama City", region: "Osaka & Nara", hub: "Osaka", type: "Ville", rating: 4.0, time: 60, 
                 desc: "Accès au château et porte d'entrée de la région de Koyasan.", 
                 lat: 34.2304, lng: 135.1707,
-                image: "images/wakayama_city.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Wakayama_castle_2.jpg"
             },
+
             { 
                 name: "Kasuga-taisha", region: "Osaka & Nara", hub: "Nara", type: "Culture", rating: 4.6, time: 15, 
                 desc: "Sanctuaire aux lanternes dans le parc de Nara.", 
                 lat: 34.6812, lng: 135.8484,
-                image: "images/kasuga_taisha.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Kasuga_Taisha.jpg"
             },
+
             { 
                 name: "Wakakusayama", region: "Osaka & Nara", hub: "Nara", type: "Nature/Vue", rating: 4.5, time: 30, 
                 desc: "Colline herbeuse offrant une vue panoramique sur Nara.", 
                 lat: 34.6896, lng: 135.8573,
-                image: "images/wakakusayama.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Wakakusayama.jpg"
             },
+
             { 
                 name: "Ōmihachiman", region: "Osaka & Nara", hub: "Kyoto", type: "Ville/Canaux", rating: 4.4, time: 40, 
                 desc: "Ville marchande historique au bord du lac Biwa. Balade en bateau.", 
                 lat: 35.1386, lng: 136.0898,
-                image: "images/omihachiman.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Omihachiman_Canal.jpg"
             },
 
+
             // --- KYOTO MER (North) ---
+
             { 
                 name: "Amanohashidate", region: "Kyoto Nord (Mer)", hub: "Miyazu", type: "Nature/Vue", rating: 4.4, time: 15, 
                 desc: "Le 'Pont vers le Ciel'. Une des 3 plus belles vues du Japon.", 
                 lat: 35.5683, lng: 135.1917,
-                image: "images/amanohashidate.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Amanohashidate.jpg"
             },
+
             { 
                 name: "Ine Fishing Village", region: "Kyoto Nord (Mer)", hub: "Miyazu", type: "Village", rating: 4.6, time: 60, 
                 desc: "Les Funaya (maisons-bateaux). Un des plus beaux villages du Japon.", 
                 lat: 35.6729, lng: 135.2913,
-                image: "images/ine.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Inefunaya2.jpg"
             },
 
+
             // --- CHUGOKU (Hiroshima Hub) ---
+
             { 
                 name: "Itsukushima (Île)", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Île/Sacré", rating: 4.7, time: 50, 
                 desc: "L'île sacrée de Miyajima. Cerfs, temples et érables.", 
                 lat: 34.2960, lng: 132.3197,
-                image: "images/miyajima.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/miyajima.jpg"
             },
+
             { 
                 name: "Itsukushima-jinja", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Sanctuaire", rating: 4.6, time: 50, 
                 desc: "Le fameux Torii flottant dans la mer.", 
                 lat: 34.2959, lng: 132.3198,
-                image: "images/itsukushima_jinja.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Itsukushima_torii.jpg"
             },
+
             { 
                 name: "Daishō-in", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Temple", rating: 4.7, time: 65, 
                 desc: "Temple bouddhiste magnifique au pied du mont Misen. Souvent oublié des foules.", 
                 lat: 34.2936, lng: 132.3168,
-                image: "images/daishoin.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Daisho-in_temple-06.jpg"
             },
+
             { 
                 name: "Etajima", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Île/Vélo", rating: 4.2, time: 30, 
                 desc: "Île dans la baie d'Hiroshima, calme, parfaite pour le cyclisme.", 
                 lat: 34.2185, lng: 132.4578,
-                image: "images/etajima.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Etajima_Island._-_panoramio.jpg"
             },
 
+
             // --- YAMAGUCHI ---
+
             { 
                 name: "Rurikō-ji", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Temple", rating: 4.6, time: 30, 
                 desc: "Pagode à 5 étages, trésor national, dans un parc superbe.", 
                 lat: 34.1883, lng: 131.4727,
-                image: "images/rurikoji.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Rurikoji_temple_pagoda_in_Spring.jpg"
             },
+
             { 
                 name: "Akiyoshido Cave", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Grotte", rating: 4.6, time: 45, 
                 desc: "La plus grande grotte calcaire du Japon. Impressionnant.", 
                 lat: 34.2272, lng: 131.3039,
-                image: "images/akiyoshido.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Akiyoshicave.jpg"
             },
+
             { 
                 name: "Beppu Benten Pond", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Nature", rating: 4.4, time: 60, 
                 desc: "Un étang d'une eau bleu cobalt irréelle.", 
                 lat: 34.2338, lng: 131.2520,
-                image: "images/beppu_benten.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Beppu_benten_pond_-_20190204_-_01.jpg"
             },
+
             { 
                 name: "Motonosumi Shrine", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Photo/Vue", rating: 4.5, time: 90, 
                 desc: "123 Torii rouges qui serpentent vers la mer. Difficile d'accès mais iconique.", 
                 lat: 34.4284, lng: 131.0567,
-                image: "images/motonosumi.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Motonosumi-jinja_01.jpg"
             },
+
             { 
                 name: "Mori Clan Burial", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Histoire", rating: 4.5, time: 90, 
                 desc: "À Hagi. Temple Tokoji. Lanternes de pierre mystiques dans la forêt.", 
                 lat: 34.4103, lng: 131.4172,
-                image: "images/tokoji.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Toukouji-Hagi_04.jpg"
             },
 
+
             // --- KYUSHU ---
+
             { 
                 name: "Unzen Jigoku", region: "Kyūshū (Nord)", hub: "Nagasaki", type: "Volcan", rating: 4.5, time: 100, 
                 desc: "Champs de fumerolles volcaniques actifs.", 
                 lat: 32.7423, lng: 130.2604,
-                image: "images/unzen.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Unzen_Jigoku_-_panoramio_-_abu_9495.jpg"
             },
+
             { 
                 name: "Takachiho Gorge", region: "Kyūshū (Centre)", hub: "Kumamoto", type: "Nature/Mythe", rating: 4.7, time: 150, 
                 desc: "Gorges volcaniques avec chute d'eau. Barque possible (très prisé).", 
                 lat: 32.7168, lng: 131.3025,
-                image: "images/takachiho.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Takachiho_Gorge_-_01.jpg"
             },
+
             { 
                 name: "Amanoiwato-jinja", region: "Kyūshū (Centre)", hub: "Kumamoto", type: "Mythe", rating: 4.5, time: 170, 
                 desc: "La grotte où la déesse du soleil Amaterasu s'est cachée.", 
                 lat: 32.7388, lng: 131.3486,
-                image: "images/amanoiwato.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Torii_at_Ama-no-Iwato_Shrine%2C_Takachiho%2C_Miyazaki_Prefecture.jpg"
             },
+
             { 
                 name: "Kusasenrigahama", region: "Kyūshū (Centre)", hub: "Kumamoto", type: "Volcan", rating: 4.6, time: 60, 
                 desc: "Vaste prairie verdoyante au pied du volcan fumant Mont Aso.", 
                 lat: 32.8856, lng: 131.0506,
-                image: "images/kusasenri.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Kusasenri01.jpg"
             },
+
             { 
                 name: "Kamishikimi Kumano", region: "Kyūshū (Centre)", hub: "Kumamoto", type: "Anime", rating: 4.8, time: 90, 
                 desc: "Sanctuaire dans la forêt. Décor du film 'Hotarubi no Mori e'.", 
                 lat: 32.8378, lng: 131.1578,
-                image: "images/kamishikimi.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Kamishikimi_Kumanoimasu_Shrine_001.jpg"
             },
 
+
             // --- YAKUSHIMA ---
+
             { 
                 name: "Kokemusu Forest", region: "Yakushima", hub: "Miyanoura", type: "Nature", rating: 4.8, time: 60, 
                 desc: "Forêt de mousse primaire. Inspiration Ghibli (Princesse Mononoké).", 
                 lat: 30.3340, lng: 130.5286,
-                image: "images/yakushima.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Shiratani_Unsuikyo_%284196806304%29.jpg"
             },
 
+
             // --- ALPES & CHUBU ---
+
             { 
                 name: "Togakushi Shrine", region: "Alpes Japonaises", hub: "Nagano", type: "Montagne", rating: 4.6, time: 60, 
                 desc: "Allée de cèdres géants et sanctuaire ninja.", 
                 lat: 36.7554, lng: 138.0838,
-                image: "images/togakushi.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Togakushi_Shrine.jpg"
             },
+
             { 
                 name: "Jigokudani Park", region: "Alpes Japonaises", hub: "Nagano", type: "Singes", rating: 4.5, time: 50, 
                 desc: "Les singes des neiges se baignant dans les sources chaudes.", 
                 lat: 36.7324, lng: 138.4621,
-                image: "images/jigokudani.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Snow_Monkeys_at_Jigokudani_Monkey_Park%2C_Japan.jpg"
             },
+
             { 
                 name: "Kamikōchi", region: "Alpes Japonaises", hub: "Matsumoto", type: "Rando", rating: 4.8, time: 90, 
                 desc: "Vallée alpine spectaculaire. Fermé en hiver.", 
                 lat: 36.2527, lng: 137.6369,
-                image: "images/kamikochi.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Kamikochi_Taisho-ike05n3200.jpg"
             },
+
             { 
                 name: "Shirakawa-gō", region: "Alpes Japonaises", hub: "Takayama", type: "Village", rating: 4.6, time: 75, 
                 desc: "Villages aux toits de chaume classés UNESCO.", 
                 lat: 36.2566, lng: 136.9043,
-                image: "images/shirakawago.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Shirakawa-go_%282017-07-22%29.jpg"
             },
+
             { 
                 name: "Kanazawa (Ville)", region: "Alpes Japonaises", hub: "Kanazawa", type: "Ville", rating: 4.5, time: 0, 
                 desc: "Jardin Kenroku-en, quartier des samouraïs et géishas.", 
                 lat: 36.5613, lng: 136.6562,
-                image: "images/kanazawa.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Kenroku-en%2C_Kanazawa.jpg"
             },
+
             { 
                 name: "Gifu (Ville)", region: "Alpes Japonaises", hub: "Gifu", type: "Ville", rating: 4.0, time: 0, 
                 desc: "Château de Gifu et pêche au cormoran.", 
                 lat: 35.4233, lng: 136.7607,
-                image: "images/gifu.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Remote_View_of_Gifu_Castle.jpg"
             },
 
+
             // --- TOHOKU (Nord) ---
+
             { 
                 name: "Takayama Inari", region: "Tohoku (Aomori)", hub: "Hirosaki", type: "Sanctuaire", rating: 4.6, time: 90, 
                 desc: "Jardin japonais et torii rouges. Très isolé tout au nord.", 
                 lat: 40.9234, lng: 140.2974,
-                image: "images/takayama_inari.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Takayama_Inari_shrine_P2110474.JPG"
             },
 
+
             // --- ONSEN / DIVERS ---
+
             { 
                 name: "Takaragawa Onsen", region: "Gunma (Onsen)", hub: "Minakami", type: "Onsen", rating: 4.4, time: 30, 
                 desc: "Immense rotenburo mixte le long de la rivière.", 
                 lat: 36.8441, lng: 139.0435,
-                image: "images/takaragawa.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Takaragawa_Onsen_01.jpg"
             },
+
             { 
                 name: "Amagisou (Izu)", region: "Izu Peninsula", hub: "Atami", type: "Onsen", rating: 4.2, time: 60, 
                 desc: "Onsen près des chutes de Kawazu Nanadaru.", 
                 lat: 34.7936, lng: 138.9324,
-                image: "images/amagisou.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Amagiso_Odaru_Waterfall_Hot_Springs.jpg"
             },
+
             { 
                 name: "Nachi Falls", region: "Wakayama (Sud)", hub: "Kii-Katsuura", type: "Nature", rating: 4.6, time: 30, 
                 desc: "La chute d'eau sacrée de Kumano Kodo.", 
                 lat: 33.6756, lng: 135.8876,
-                image: "images/nachi.jpg"
+                image: "https://commons.wikimedia.org/wiki/Special:FilePath/Nachi_waterfall_%28Japan_2007_047%29.jpg"
             }
+
         ];
 
         // --- COLORS & CONFIG ---
