@@ -28,21 +28,20 @@
             width: 100%;
             border-radius: 0.5rem;
         }
-
-        /* Popup Style Google Maps Clean */
-        .leaflet-popup-content-wrapper {
-            padding: 0 !important;
-            overflow: hidden;
-            border-radius: 0.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-        .leaflet-popup-content {
-            margin: 0 !important;
-            width: 280px !important;
-        }
-        .leaflet-popup-tip {
-            background: white;
-        }
+        /* Popup Style "Carte de visite" */
+            .leaflet-popup-content-wrapper {
+                padding: 0 !important;
+                overflow: hidden;
+                border-radius: 0.5rem; /* rounded-lg */
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            .leaflet-popup-content {
+                margin: 0 !important;
+                width: 320px !important; /* Un peu plus large pour le confort */
+            }
+            .leaflet-popup-tip {
+                background: white;
+            }
         /* Custom Scrollbar pour la légende */
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
@@ -139,9 +138,16 @@
                 </div>
             </section>
 
-            <section id="regions-section">
-                <h3 class="text-xl font-bold mb-6 text-stone-800 border-l-4 border-indigo-500 pl-3">Détail des Zones</h3>
-                <div id="regions-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <section id="regions-section" class="scroll-mt-24">
+                <div class="flex justify-between items-end mb-6 border-l-4 border-indigo-500 pl-3">
+                    <div>
+                        <h3 class="text-xl font-bold text-stone-800">Galerie des Lieux</h3>
+                        <p class="text-sm text-stone-500 mt-1">Tous vos lieux détaillés. Filtrez via la carte ci-dessus.</p>
+                    </div>
+                    <span id="gallery-count" class="text-xs font-bold bg-stone-100 text-stone-500 px-2 py-1 rounded">0 affichés</span>
+                </div>
+                
+                <div id="regions-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     </div>
             </section>
         </div>
@@ -213,81 +219,331 @@
     </footer>
 
     <script>
-        // --- DATA WITH GEOCOORDINATES ---
+        // --- DATA : IMAGES LOCALES & PAS DE FAUSSES REVIEWS ---
         const rawData = [
-            // KANTO
-            { name: "Shinjuku", region: "Tokyo & Kanto", hub: "Tokyo", type: "Ville/Shopping", rating: 4.5, time: 0, desc: "Néons, foules, Godzilla head.", lat: 35.6938, lng: 139.7034 },
-            { name: "Akihabara", region: "Tokyo & Kanto", hub: "Tokyo", type: "Ville/Geek", rating: 4.3, time: 15, desc: "Électronique et otaku.", lat: 35.6984, lng: 139.7731 },
-            { name: "Ueno", region: "Tokyo & Kanto", hub: "Tokyo", type: "Culture/Parc", rating: 4.4, time: 20, desc: "Musées et marché Ameyoko.", lat: 35.7141, lng: 139.7741 },
-            { name: "Ikebukuro", region: "Tokyo & Kanto", hub: "Tokyo", type: "Ville/Shopping", rating: 4.2, time: 25, desc: "Alternative à Shinjuku.", lat: 35.7289, lng: 139.7118 },
-            { name: "Kamakura (Ville)", region: "Tokyo & Kanto", hub: "Tokyo", type: "Culture/Temples", rating: 4.6, time: 60, desc: "Bouddha et temples zen.", lat: 35.3197, lng: 139.5502 },
-            { name: "Kamakurakōkō-Mae", region: "Tokyo & Kanto", hub: "Tokyo", type: "Photo/Anime", rating: 4.3, time: 75, desc: "Passage à niveau Slam Dunk.", lat: 35.3067, lng: 139.5019 },
-            { name: "Katori (Chiba)", region: "Tokyo & Kanto", hub: "Tokyo", type: "Culture/Tradition", rating: 4.4, time: 100, desc: "La 'Petite Edo' de Chiba.", lat: 35.8907, lng: 140.4992 },
+            // --- KANTO (Tokyo Hub) ---
+            { 
+                name: "Shinjuku", region: "Tokyo & Kanto", hub: "Tokyo", type: "Ville/Shopping", rating: 4.5, time: 0, 
+                desc: "Le cœur battant de Tokyo. Néons, foules, Godzilla head et vie nocturne.", 
+                lat: 35.6938, lng: 139.7034,
+                image: "images/shinjuku.jpg"
+            },
+            { 
+                name: "Akihabara", region: "Tokyo & Kanto", hub: "Tokyo", type: "Ville/Geek", rating: 4.3, time: 15, 
+                desc: "La mecque de l'électronique et des otaku. Maids cafés et figurines partout.", 
+                lat: 35.6984, lng: 139.7731,
+                image: "images/akihabara.jpg"
+            },
+            { 
+                name: "Ueno", region: "Tokyo & Kanto", hub: "Tokyo", type: "Culture/Parc", rating: 4.4, time: 20, 
+                desc: "Grands musées nationaux, zoo, et le marché populaire d'Ameyoko.", 
+                lat: 35.7141, lng: 139.7741,
+                image: "images/ueno.jpg"
+            },
+            { 
+                name: "Ikebukuro", region: "Tokyo & Kanto", hub: "Tokyo", type: "Ville/Shopping", rating: 4.2, time: 25, 
+                desc: "Alternative à Shinjuku. Centre Pokémon et Sunshine City.", 
+                lat: 35.7289, lng: 139.7118,
+                image: "images/ikebukuro.jpg"
+            },
+            { 
+                name: "Kamakura (Ville)", region: "Tokyo & Kanto", hub: "Tokyo", type: "Culture/Temples", rating: 4.6, time: 60, 
+                desc: "Le grand Bouddha et les temples zen. Ambiance côtière détendue.", 
+                lat: 35.3197, lng: 139.5502,
+                image: "images/kamakura.jpg"
+            },
+            { 
+                name: "Kamakurakōkō-Mae", region: "Tokyo & Kanto", hub: "Tokyo", type: "Photo/Anime", rating: 4.3, time: 75, 
+                desc: "Le passage à niveau légendaire du générique de Slam Dunk. Vue sur mer.", 
+                lat: 35.3067, lng: 139.5019,
+                image: "images/kamakurakoko.jpg"
+            },
+            { 
+                name: "Katori (Chiba)", region: "Tokyo & Kanto", hub: "Tokyo", type: "Culture/Tradition", rating: 4.4, time: 100, 
+                desc: "La 'Petite Edo' de Chiba. Canaux historiques et grand sanctuaire.", 
+                lat: 35.8907, lng: 140.4992,
+                image: "images/katori.jpg"
+            },
             
-            // FUJI
-            { name: "Parc Oishi", region: "Mont Fuji", hub: "Kawaguchiko", type: "Nature/Vue", rating: 4.5, time: 20, desc: "Vue classique du Fuji avec fleurs.", lat: 35.5228, lng: 138.7441 },
-            { name: "Chureito Pagoda", region: "Mont Fuji", hub: "Kawaguchiko", type: "Vue/Icône", rating: 4.7, time: 30, desc: "Pagode + Cerisiers + Fuji.", lat: 35.5013, lng: 138.8013 },
+            // --- FUJI FIVE LAKES ---
+            { 
+                name: "Parc Oishi", region: "Mont Fuji", hub: "Kawaguchiko", type: "Nature/Vue", rating: 4.5, time: 20, 
+                desc: "La vue classique du Fuji avec le lac et les fleurs au premier plan.", 
+                lat: 35.5228, lng: 138.7441,
+                image: "images/oishi_park.jpg"
+            },
+            { 
+                name: "Chureito Pagoda", region: "Mont Fuji", hub: "Kawaguchiko", type: "Vue/Icône", rating: 4.7, time: 30, 
+                desc: "Arakurayama Sengen Park. LA photo du Japon : Pagode + Cerisiers + Fuji.", 
+                lat: 35.5013, lng: 138.8013,
+                image: "images/chureito.jpg"
+            },
 
-            // KYOTO & CENTRAL
-            { name: "Gion", region: "Kyoto", hub: "Kyoto", type: "Culture/Ville", rating: 4.5, time: 15, desc: "Quartier des Geishas.", lat: 35.0037, lng: 135.7778 },
-            { name: "Ninna-ji", region: "Kyoto", hub: "Kyoto", type: "Temple/UNESCO", rating: 4.6, time: 30, desc: "Célèbre pour cerisiers Omuro.", lat: 35.0280, lng: 135.7138 },
-            { name: "Renge-ji", region: "Kyoto", hub: "Kyoto", type: "Temple/Jardin", rating: 4.7, time: 40, desc: "Joyau caché au nord.", lat: 35.0601, lng: 135.8041 },
-            { name: "Kurama-dera", region: "Kyoto", hub: "Kyoto", type: "Montagne/Rando", rating: 4.6, time: 50, desc: "Temple mystique, terre des Tengu.", lat: 35.1182, lng: 135.7674 },
-            { name: "Kifune Shrine", region: "Kyoto", hub: "Kyoto", type: "Sanctuaire/Eau", rating: 4.5, time: 60, desc: "Lanternes rouges sur escalier.", lat: 35.1227, lng: 135.7634 },
-            { name: "Otagi Nenbutsuji", region: "Kyoto", hub: "Kyoto", type: "Temple/Art", rating: 4.8, time: 60, desc: "1200 statues de pierre.", lat: 35.0275, lng: 135.6617 },
-            { name: "Hozugawa Boat", region: "Kyoto", hub: "Kyoto", type: "Activité/Nature", rating: 4.4, time: 30, desc: "Descente de rivière.", lat: 35.0150, lng: 135.5800 },
-            { name: "Nintendo Museum", region: "Kyoto", hub: "Kyoto", type: "Musée/Geek", rating: 4.9, time: 20, desc: "Histoire de Nintendo à Uji.", lat: 34.8916, lng: 135.7924 },
-            { name: "Momiji-ya (Takao)", region: "Kyoto", hub: "Kyoto", type: "Restaurant", rating: 4.4, time: 50, desc: "Dîner Kawadoko.", lat: 35.0560, lng: 135.6796 },
+            // --- KANSAI CENTRAL (Kyoto Hub) ---
+            { 
+                name: "Gion", region: "Kyoto", hub: "Kyoto", type: "Culture/Ville", rating: 4.5, time: 15, 
+                desc: "Le quartier des Geishas. Rues pavées, maisons de thé et charme ancien.", 
+                lat: 35.0037, lng: 135.7778,
+                image: "images/gion.jpg"
+            },
+            { 
+                name: "Ninna-ji", region: "Kyoto", hub: "Kyoto", type: "Temple/UNESCO", rating: 4.6, time: 30, 
+                desc: "Immense complexe, célèbre pour ses cerisiers tardifs Omuro.", 
+                lat: 35.0280, lng: 135.7138,
+                image: "images/ninnaji.jpg"
+            },
+            { 
+                name: "Renge-ji", region: "Kyoto", hub: "Kyoto", type: "Temple/Jardin", rating: 4.7, time: 40, 
+                desc: "Un petit joyau caché au nord. Jardin sublime, calme absolu.", 
+                lat: 35.0601, lng: 135.8041,
+                image: "images/rengeji.jpg"
+            },
+            { 
+                name: "Kurama-dera", region: "Kyoto", hub: "Kyoto", type: "Montagne/Rando", rating: 4.6, time: 50, 
+                desc: "Temple de montagne mystique, terre des Tengu. Rando vers Kibune possible.", 
+                lat: 35.1182, lng: 135.7674,
+                image: "images/kurama.jpg"
+            },
+            { 
+                name: "Kifune Shrine", region: "Kyoto", hub: "Kyoto", type: "Sanctuaire/Eau", rating: 4.5, time: 60, 
+                desc: "Célèbre pour ses lanternes rouges longeant l'escalier de pierre.", 
+                lat: 35.1227, lng: 135.7634,
+                image: "images/kifune.jpg"
+            },
+            { 
+                name: "Otagi Nenbutsuji", region: "Kyoto", hub: "Kyoto", type: "Temple/Art", rating: 4.8, time: 60, 
+                desc: "Le temple aux 1200 statues de pierre aux visages amusants.", 
+                lat: 35.0275, lng: 135.6617,
+                image: "images/otagi.jpg"
+            },
+            { 
+                name: "Hozugawa Boat", region: "Kyoto", hub: "Kyoto", type: "Activité/Nature", rating: 4.4, time: 30, 
+                desc: "Descente de rivière traditionnelle en bateau vers Arashiyama.", 
+                lat: 35.0150, lng: 135.5800,
+                image: "images/hozugawa.jpg"
+            },
+            { 
+                name: "Nintendo Museum", region: "Kyoto", hub: "Kyoto", type: "Musée/Geek", rating: 4.9, time: 20, 
+                desc: "À Uji. Le nouveau musée officiel retraçant l'histoire de Nintendo.", 
+                lat: 34.8916, lng: 135.7924,
+                image: "images/nintendo_museum.jpg"
+            },
+            { 
+                name: "Momiji-ya (Takao)", region: "Kyoto", hub: "Kyoto", type: "Restaurant", rating: 4.4, time: 50, 
+                desc: "Dîner Kawadoko sur la rivière en été, ou érables en automne à Takao.", 
+                lat: 35.0560, lng: 135.6796,
+                image: "images/momijiya.jpg"
+            },
 
-            // OSAKA / NARA
-            { name: "USJ (Universal)", region: "Osaka & Nara", hub: "Osaka", type: "Parc", rating: 4.8, time: 20, desc: "Super Nintendo World.", lat: 34.6654, lng: 135.4323 },
-            { name: "Wakayama City", region: "Osaka & Nara", hub: "Osaka", type: "Ville", rating: 4.0, time: 60, desc: "Porte d'entrée Koyasan.", lat: 34.2304, lng: 135.1707 },
-            { name: "Kasuga-taisha", region: "Osaka & Nara", hub: "Nara", type: "Culture", rating: 4.6, time: 15, desc: "Sanctuaire aux lanternes.", lat: 34.6812, lng: 135.8484 },
-            { name: "Wakakusayama", region: "Osaka & Nara", hub: "Nara", type: "Nature/Vue", rating: 4.5, time: 30, desc: "Vue panoramique sur Nara.", lat: 34.6896, lng: 135.8573 },
-            { name: "Ōmihachiman", region: "Osaka & Nara", hub: "Kyoto", type: "Ville/Canaux", rating: 4.4, time: 40, desc: "Canaux historiques.", lat: 35.1386, lng: 136.0898 },
+            // --- KANSAI (Osaka/Nara) ---
+            { 
+                name: "USJ (Universal)", region: "Osaka & Nara", hub: "Osaka", type: "Parc", rating: 4.8, time: 20, 
+                desc: "Super Nintendo World et Harry Potter. Incontournable mais bondé.", 
+                lat: 34.6654, lng: 135.4323,
+                image: "images/usj.jpg"
+            },
+            { 
+                name: "Wakayama City", region: "Osaka & Nara", hub: "Osaka", type: "Ville", rating: 4.0, time: 60, 
+                desc: "Accès au château et porte d'entrée de la région de Koyasan.", 
+                lat: 34.2304, lng: 135.1707,
+                image: "images/wakayama_city.jpg"
+            },
+            { 
+                name: "Kasuga-taisha", region: "Osaka & Nara", hub: "Nara", type: "Culture", rating: 4.6, time: 15, 
+                desc: "Sanctuaire aux lanternes dans le parc de Nara.", 
+                lat: 34.6812, lng: 135.8484,
+                image: "images/kasuga_taisha.jpg"
+            },
+            { 
+                name: "Wakakusayama", region: "Osaka & Nara", hub: "Nara", type: "Nature/Vue", rating: 4.5, time: 30, 
+                desc: "Colline herbeuse offrant une vue panoramique sur Nara.", 
+                lat: 34.6896, lng: 135.8573,
+                image: "images/wakakusayama.jpg"
+            },
+            { 
+                name: "Ōmihachiman", region: "Osaka & Nara", hub: "Kyoto", type: "Ville/Canaux", rating: 4.4, time: 40, 
+                desc: "Ville marchande historique au bord du lac Biwa. Balade en bateau.", 
+                lat: 35.1386, lng: 136.0898,
+                image: "images/omihachiman.jpg"
+            },
 
-            // KYOTO MER
-            { name: "Amanohashidate", region: "Kyoto Nord (Mer)", hub: "Miyazu", type: "Nature/Vue", rating: 4.4, time: 15, desc: "Pont vers le Ciel.", lat: 35.5683, lng: 135.1917 },
-            { name: "Ine Fishing Village", region: "Kyoto Nord (Mer)", hub: "Miyazu", type: "Village", rating: 4.6, time: 60, desc: "Maisons-bateaux Funaya.", lat: 35.6729, lng: 135.2913 },
+            // --- KYOTO MER (North) ---
+            { 
+                name: "Amanohashidate", region: "Kyoto Nord (Mer)", hub: "Miyazu", type: "Nature/Vue", rating: 4.4, time: 15, 
+                desc: "Le 'Pont vers le Ciel'. Une des 3 plus belles vues du Japon.", 
+                lat: 35.5683, lng: 135.1917,
+                image: "images/amanohashidate.jpg"
+            },
+            { 
+                name: "Ine Fishing Village", region: "Kyoto Nord (Mer)", hub: "Miyazu", type: "Village", rating: 4.6, time: 60, 
+                desc: "Les Funaya (maisons-bateaux). Un des plus beaux villages du Japon.", 
+                lat: 35.6729, lng: 135.2913,
+                image: "images/ine.jpg"
+            },
 
-            // CHUGOKU
-            { name: "Itsukushima (Île)", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Île/Sacré", rating: 4.7, time: 50, desc: "Île sacrée de Miyajima.", lat: 34.2960, lng: 132.3197 },
-            { name: "Itsukushima-jinja", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Sanctuaire", rating: 4.6, time: 50, desc: "Torii flottant.", lat: 34.2959, lng: 132.3198 },
-            { name: "Daishō-in", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Temple", rating: 4.7, time: 65, desc: "Temple au pied du mont Misen.", lat: 34.2936, lng: 132.3168 },
-            { name: "Etajima", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Île/Vélo", rating: 4.2, time: 30, desc: "Cyclisme dans la baie.", lat: 34.2185, lng: 132.4578 },
+            // --- CHUGOKU (Hiroshima Hub) ---
+            { 
+                name: "Itsukushima (Île)", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Île/Sacré", rating: 4.7, time: 50, 
+                desc: "L'île sacrée de Miyajima. Cerfs, temples et érables.", 
+                lat: 34.2960, lng: 132.3197,
+                image: "images/miyajima.jpg"
+            },
+            { 
+                name: "Itsukushima-jinja", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Sanctuaire", rating: 4.6, time: 50, 
+                desc: "Le fameux Torii flottant dans la mer.", 
+                lat: 34.2959, lng: 132.3198,
+                image: "images/itsukushima_jinja.jpg"
+            },
+            { 
+                name: "Daishō-in", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Temple", rating: 4.7, time: 65, 
+                desc: "Temple bouddhiste magnifique au pied du mont Misen. Souvent oublié des foules.", 
+                lat: 34.2936, lng: 132.3168,
+                image: "images/daishoin.jpg"
+            },
+            { 
+                name: "Etajima", region: "Hiroshima & Miyajima", hub: "Hiroshima", type: "Île/Vélo", rating: 4.2, time: 30, 
+                desc: "Île dans la baie d'Hiroshima, calme, parfaite pour le cyclisme.", 
+                lat: 34.2185, lng: 132.4578,
+                image: "images/etajima.jpg"
+            },
 
-            // YAMAGUCHI
-            { name: "Rurikō-ji", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Temple", rating: 4.6, time: 30, desc: "Pagode à 5 étages.", lat: 34.1883, lng: 131.4727 },
-            { name: "Akiyoshido Cave", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Grotte", rating: 4.6, time: 45, desc: "Immense grotte calcaire.", lat: 34.2272, lng: 131.3039 },
-            { name: "Beppu Benten Pond", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Nature", rating: 4.4, time: 60, desc: "Eau bleu cobalt.", lat: 34.2338, lng: 131.2520 },
-            { name: "Motonosumi Shrine", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Photo/Vue", rating: 4.5, time: 90, desc: "123 Torii rouges vers la mer.", lat: 34.4284, lng: 131.0567 },
-            { name: "Mori Clan Burial", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Histoire", rating: 4.5, time: 90, desc: "Lanternes de pierre à Hagi.", lat: 34.4103, lng: 131.4172 },
+            // --- YAMAGUCHI ---
+            { 
+                name: "Rurikō-ji", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Temple", rating: 4.6, time: 30, 
+                desc: "Pagode à 5 étages, trésor national, dans un parc superbe.", 
+                lat: 34.1883, lng: 131.4727,
+                image: "images/rurikoji.jpg"
+            },
+            { 
+                name: "Akiyoshido Cave", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Grotte", rating: 4.6, time: 45, 
+                desc: "La plus grande grotte calcaire du Japon. Impressionnant.", 
+                lat: 34.2272, lng: 131.3039,
+                image: "images/akiyoshido.jpg"
+            },
+            { 
+                name: "Beppu Benten Pond", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Nature", rating: 4.4, time: 60, 
+                desc: "Un étang d'une eau bleu cobalt irréelle.", 
+                lat: 34.2338, lng: 131.2520,
+                image: "images/beppu_benten.jpg"
+            },
+            { 
+                name: "Motonosumi Shrine", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Photo/Vue", rating: 4.5, time: 90, 
+                desc: "123 Torii rouges qui serpentent vers la mer. Difficile d'accès mais iconique.", 
+                lat: 34.4284, lng: 131.0567,
+                image: "images/motonosumi.jpg"
+            },
+            { 
+                name: "Mori Clan Burial", region: "Yamaguchi", hub: "Shin-Yamaguchi", type: "Histoire", rating: 4.5, time: 90, 
+                desc: "À Hagi. Temple Tokoji. Lanternes de pierre mystiques dans la forêt.", 
+                lat: 34.4103, lng: 131.4172,
+                image: "images/tokoji.jpg"
+            },
 
-            // KYUSHU
-            { name: "Unzen Jigoku", region: "Kyūshū (Nord)", hub: "Nagasaki", type: "Volcan", rating: 4.5, time: 100, desc: "Champs de fumerolles.", lat: 32.7423, lng: 130.2604 },
-            { name: "Takachiho Gorge", region: "Kyūshū (Centre)", hub: "Kumamoto", type: "Nature/Mythe", rating: 4.7, time: 150, desc: "Gorges volcaniques.", lat: 32.7168, lng: 131.3025 },
-            { name: "Amanoiwato-jinja", region: "Kyūshū (Centre)", hub: "Kumamoto", type: "Mythe", rating: 4.5, time: 170, desc: "Grotte d'Amaterasu.", lat: 32.7388, lng: 131.3486 },
-            { name: "Kusasenrigahama", region: "Kyūshū (Centre)", hub: "Kumamoto", type: "Volcan", rating: 4.6, time: 60, desc: "Prairie du Mont Aso.", lat: 32.8856, lng: 131.0506 },
-            { name: "Kamishikimi Kumano", region: "Kyūshū (Centre)", hub: "Kumamoto", type: "Anime", rating: 4.8, time: 90, desc: "Décor de 'Hotarubi no Mori e'.", lat: 32.8378, lng: 131.1578 },
+            // --- KYUSHU ---
+            { 
+                name: "Unzen Jigoku", region: "Kyūshū (Nord)", hub: "Nagasaki", type: "Volcan", rating: 4.5, time: 100, 
+                desc: "Champs de fumerolles volcaniques actifs.", 
+                lat: 32.7423, lng: 130.2604,
+                image: "images/unzen.jpg"
+            },
+            { 
+                name: "Takachiho Gorge", region: "Kyūshū (Centre)", hub: "Kumamoto", type: "Nature/Mythe", rating: 4.7, time: 150, 
+                desc: "Gorges volcaniques avec chute d'eau. Barque possible (très prisé).", 
+                lat: 32.7168, lng: 131.3025,
+                image: "images/takachiho.jpg"
+            },
+            { 
+                name: "Amanoiwato-jinja", region: "Kyūshū (Centre)", hub: "Kumamoto", type: "Mythe", rating: 4.5, time: 170, 
+                desc: "La grotte où la déesse du soleil Amaterasu s'est cachée.", 
+                lat: 32.7388, lng: 131.3486,
+                image: "images/amanoiwato.jpg"
+            },
+            { 
+                name: "Kusasenrigahama", region: "Kyūshū (Centre)", hub: "Kumamoto", type: "Volcan", rating: 4.6, time: 60, 
+                desc: "Vaste prairie verdoyante au pied du volcan fumant Mont Aso.", 
+                lat: 32.8856, lng: 131.0506,
+                image: "images/kusasenri.jpg"
+            },
+            { 
+                name: "Kamishikimi Kumano", region: "Kyūshū (Centre)", hub: "Kumamoto", type: "Anime", rating: 4.8, time: 90, 
+                desc: "Sanctuaire dans la forêt. Décor du film 'Hotarubi no Mori e'.", 
+                lat: 32.8378, lng: 131.1578,
+                image: "images/kamishikimi.jpg"
+            },
 
-            // YAKUSHIMA
-            { name: "Kokemusu Forest", region: "Yakushima", hub: "Miyanoura", type: "Nature", rating: 4.8, time: 60, desc: "Forêt de mousse.", lat: 30.3340, lng: 130.5286 },
+            // --- YAKUSHIMA ---
+            { 
+                name: "Kokemusu Forest", region: "Yakushima", hub: "Miyanoura", type: "Nature", rating: 4.8, time: 60, 
+                desc: "Forêt de mousse primaire. Inspiration Ghibli (Princesse Mononoké).", 
+                lat: 30.3340, lng: 130.5286,
+                image: "images/yakushima.jpg"
+            },
 
-            // ALPES & CHUBU
-            { name: "Togakushi Shrine", region: "Alpes Japonaises", hub: "Nagano", type: "Montagne", rating: 4.6, time: 60, desc: "Allée de cèdres géants.", lat: 36.7554, lng: 138.0838 },
-            { name: "Jigokudani Park", region: "Alpes Japonaises", hub: "Nagano", type: "Singes", rating: 4.5, time: 50, desc: "Singes des neiges.", lat: 36.7324, lng: 138.4621 },
-            { name: "Kamikōchi", region: "Alpes Japonaises", hub: "Matsumoto", type: "Rando", rating: 4.8, time: 90, desc: "Vallée alpine.", lat: 36.2527, lng: 137.6369 },
-            { name: "Shirakawa-gō", region: "Alpes Japonaises", hub: "Takayama", type: "Village", rating: 4.6, time: 75, desc: "Toits de chaume.", lat: 36.2566, lng: 136.9043 },
-            { name: "Kanazawa (Ville)", region: "Alpes Japonaises", hub: "Kanazawa", type: "Ville", rating: 4.5, time: 0, desc: "Jardin Kenroku-en.", lat: 36.5613, lng: 136.6562 },
-            { name: "Gifu (Ville)", region: "Alpes Japonaises", hub: "Gifu", type: "Ville", rating: 4.0, time: 0, desc: "Château de Gifu.", lat: 35.4233, lng: 136.7607 },
+            // --- ALPES & CHUBU ---
+            { 
+                name: "Togakushi Shrine", region: "Alpes Japonaises", hub: "Nagano", type: "Montagne", rating: 4.6, time: 60, 
+                desc: "Allée de cèdres géants et sanctuaire ninja.", 
+                lat: 36.7554, lng: 138.0838,
+                image: "images/togakushi.jpg"
+            },
+            { 
+                name: "Jigokudani Park", region: "Alpes Japonaises", hub: "Nagano", type: "Singes", rating: 4.5, time: 50, 
+                desc: "Les singes des neiges se baignant dans les sources chaudes.", 
+                lat: 36.7324, lng: 138.4621,
+                image: "images/jigokudani.jpg"
+            },
+            { 
+                name: "Kamikōchi", region: "Alpes Japonaises", hub: "Matsumoto", type: "Rando", rating: 4.8, time: 90, 
+                desc: "Vallée alpine spectaculaire. Fermé en hiver.", 
+                lat: 36.2527, lng: 137.6369,
+                image: "images/kamikochi.jpg"
+            },
+            { 
+                name: "Shirakawa-gō", region: "Alpes Japonaises", hub: "Takayama", type: "Village", rating: 4.6, time: 75, 
+                desc: "Villages aux toits de chaume classés UNESCO.", 
+                lat: 36.2566, lng: 136.9043,
+                image: "images/shirakawago.jpg"
+            },
+            { 
+                name: "Kanazawa (Ville)", region: "Alpes Japonaises", hub: "Kanazawa", type: "Ville", rating: 4.5, time: 0, 
+                desc: "Jardin Kenroku-en, quartier des samouraïs et géishas.", 
+                lat: 36.5613, lng: 136.6562,
+                image: "images/kanazawa.jpg"
+            },
+            { 
+                name: "Gifu (Ville)", region: "Alpes Japonaises", hub: "Gifu", type: "Ville", rating: 4.0, time: 0, 
+                desc: "Château de Gifu et pêche au cormoran.", 
+                lat: 35.4233, lng: 136.7607,
+                image: "images/gifu.jpg"
+            },
 
-            // TOHOKU
-            { name: "Takayama Inari", region: "Tohoku (Aomori)", hub: "Hirosaki", type: "Sanctuaire", rating: 4.6, time: 90, desc: "Torii rouges au nord.", lat: 40.9234, lng: 140.2974 },
+            // --- TOHOKU (Nord) ---
+            { 
+                name: "Takayama Inari", region: "Tohoku (Aomori)", hub: "Hirosaki", type: "Sanctuaire", rating: 4.6, time: 90, 
+                desc: "Jardin japonais et torii rouges. Très isolé tout au nord.", 
+                lat: 40.9234, lng: 140.2974,
+                image: "images/takayama_inari.jpg"
+            },
 
-            // ONSEN
-            { name: "Takaragawa Onsen", region: "Gunma (Onsen)", hub: "Minakami", type: "Onsen", rating: 4.4, time: 30, desc: "Rotenburo mixte rivière.", lat: 36.8441, lng: 139.0435 },
-            { name: "Amagisou (Izu)", region: "Izu Peninsula", hub: "Atami", type: "Onsen", rating: 4.2, time: 60, desc: "Chutes Kawazu.", lat: 34.7936, lng: 138.9324 },
-            { name: "Nachi Falls", region: "Wakayama (Sud)", hub: "Kii-Katsuura", type: "Nature", rating: 4.6, time: 30, desc: "Chute sacrée.", lat: 33.6756, lng: 135.8876 }
+            // --- ONSEN / DIVERS ---
+            { 
+                name: "Takaragawa Onsen", region: "Gunma (Onsen)", hub: "Minakami", type: "Onsen", rating: 4.4, time: 30, 
+                desc: "Immense rotenburo mixte le long de la rivière.", 
+                lat: 36.8441, lng: 139.0435,
+                image: "images/takaragawa.jpg"
+            },
+            { 
+                name: "Amagisou (Izu)", region: "Izu Peninsula", hub: "Atami", type: "Onsen", rating: 4.2, time: 60, 
+                desc: "Onsen près des chutes de Kawazu Nanadaru.", 
+                lat: 34.7936, lng: 138.9324,
+                image: "images/amagisou.jpg"
+            },
+            { 
+                name: "Nachi Falls", region: "Wakayama (Sud)", hub: "Kii-Katsuura", type: "Nature", rating: 4.6, time: 30, 
+                desc: "La chute d'eau sacrée de Kumano Kodo.", 
+                lat: 33.6756, lng: 135.8876,
+                image: "images/nachi.jpg"
+            }
         ];
 
         // --- COLORS & CONFIG ---
@@ -323,7 +579,7 @@
             activeMapFilter: null,
             
             init() {
-                this.renderDashboard();
+                this.renderSpotsGrid();
                 this.renderOverviewChart();
                 this.renderLegend();
                 setTimeout(() => this.renderMap(), 100);
@@ -354,7 +610,12 @@
                 } else {
                     this.activeMapFilter = regionName;
                     this.updateMapMarkers();
-                    this.renderLegend(); // Mise à jour visuelle des boutons
+                    this.renderLegend();
+                    this.renderSpotsGrid(); // <--- AJOUT : Met à jour la grille du bas
+                    
+                    // Scroll doux vers la grille pour montrer le résultat
+                    // (Optionnel, vous pouvez commenter cette ligne si vous préférez rester sur la carte)
+                    // document.getElementById('regions-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             },
 
@@ -362,6 +623,7 @@
                 this.activeMapFilter = null;
                 this.updateMapMarkers();
                 this.renderLegend();
+                this.renderSpotsGrid(); // <--- AJOUT : Réinitialise la grille
             },
 
             renderLegend() {
@@ -436,57 +698,55 @@
                             fillOpacity: 0.9
                         });
 
-                        // --- LOGIQUE IMAGE (Placeholder si vide) ---
-                        // Si spot.image est défini, on l'utilise, sinon div gris
-                        const imageHeader = spot.image 
-                            ? `<img src="${spot.image}" class="w-full h-40 object-cover" alt="${spot.name}">`
-                            : `<div class="w-full h-32 bg-stone-200 flex flex-col items-center justify-center text-stone-400">
-                                 <span class="text-2xl">📷</span>
-                                 <span class="text-[10px] font-medium mt-1">Pas de photo</span>
+                        // --- GESTION IMAGE (80px de large) ---
+                        // Utilise 'object-cover' pour remplir le rectangle vertical sans déformation
+                        const imageSection = spot.image 
+                            ? `<img src="${spot.image}" class="w-full h-full object-cover" alt="${spot.name}">`
+                            : `<div class="w-full h-full bg-stone-100 flex flex-col items-center justify-center text-stone-300">
+                                 <span class="text-xl">📷</span>
                                </div>`;
 
-                        // --- LOGIQUE AVIS (Ne rien afficher si pas d'info) ---
-                        // On vérifie si spot.reviews existe
+                        // --- GESTION AVIS (Optionnel) ---
                         const reviewDisplay = spot.reviews 
-                            ? `<span class="text-xs text-gray-500">(${spot.reviews.toLocaleString()} avis)</span>` 
+                            ? `<span class="text-[10px] text-gray-400 ml-1">(${spot.reviews.toLocaleString()})</span>` 
                             : ''; 
 
+                        // --- TEMPLATE HTML HORIZONTAL ---
                         const popupContent = `
-                            <div class="font-sans text-left pb-1 bg-white flex flex-col">
+                            <div class="font-sans text-left bg-white flex h-32 w-full">
                                 
-                                <div class="relative">
-                                    ${imageHeader}
-                                    <div class="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full font-bold backdrop-blur-sm shadow-sm">
+                                <div class="relative w-20 flex-shrink-0 border-r border-gray-100 bg-gray-50">
+                                    ${imageSection}
+                                    <div class="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] py-0.5 text-center font-bold backdrop-blur-sm">
                                         ${this.getEmoji(spot.type)}
                                     </div>
                                 </div>
 
-                                <div class="p-4">
-                                    <h3 class="font-bold text-lg text-gray-900 leading-tight mb-1">${spot.name}</h3>
+                                <div class="flex-1 p-3 flex flex-col justify-between min-w-0">
                                     
-                                    <div class="flex items-center gap-1.5 mb-3">
-                                        <div class="flex text-amber-400 text-sm">
-                                            ${'★'.repeat(Math.floor(spot.rating))}
-                                            ${spot.rating % 1 !== 0 ? '<span class="opacity-50">★</span>' : ''}
+                                    <div>
+                                        <div class="flex justify-between items-start gap-2">
+                                            <h3 class="font-bold text-sm text-gray-800 leading-tight truncate" title="${spot.name}">${spot.name}</h3>
+                                            <div class="flex items-center text-amber-400 text-xs flex-shrink-0 bg-amber-50 px-1 rounded">
+                                                <span class="font-bold text-amber-600 mr-0.5">${spot.rating}</span>★
+                                                ${reviewDisplay}
+                                            </div>
                                         </div>
-                                        <span class="font-bold text-sm text-gray-700">${spot.rating}</span>
-                                        ${reviewDisplay}
+
+                                        <p class="text-[10px] text-gray-500 leading-snug line-clamp-2 mt-1.5">
+                                            ${spot.desc}
+                                        </p>
                                     </div>
 
-                                    <p class="text-xs text-gray-600 leading-relaxed line-clamp-3 mb-4 border-l-2 border-indigo-100 pl-2">
-                                        ${spot.desc}
-                                    </p>
-
-                                    <div class="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
-                                        <div class="flex flex-col">
-                                            <span class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">HUB</span>
-                                            <span class="text-xs font-medium text-stone-700">${spot.hub}</span>
+                                    <div class="flex items-center justify-between pt-2 mt-1 border-t border-gray-100">
+                                        <div class="flex items-center gap-1 text-[10px] text-stone-500 bg-stone-50 px-1.5 py-0.5 rounded border border-stone-100">
+                                            <span>📍</span> ${spot.hub}
                                         </div>
                                         
                                         <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' Japan')}" 
                                            target="_blank"
-                                           class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-800 px-3 py-1.5 rounded-md font-bold transition-colors flex items-center gap-1">
-                                            Maps ↗
+                                           class="text-[10px] font-bold text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-0.5 transition-colors">
+                                            Voir sur Maps ↗
                                         </a>
                                     </div>
                                 </div>
@@ -499,7 +759,7 @@
                     }
                 });
 
-                // Auto-zoom
+                // Auto-zoom logic
                 if (bounds.length > 0) {
                     if (this.activeMapFilter) {
                         this.map.flyToBounds(bounds, { padding: [50, 50], maxZoom: 10 });
@@ -508,61 +768,88 @@
                     }
                 }
             },
-
-            renderDashboard() {
+            
+            // Remplace l'ancien renderDashboard
+            renderSpotsGrid() {
+                // Mise à jour des compteurs globaux (Hero section)
                 document.getElementById('total-count-hero').innerText = rawData.length;
                 document.getElementById('stat-total-spots').innerText = rawData.length;
                 document.getElementById('stat-regions-count').innerText = Object.keys(regionsData).length;
-
+                
+                // Calculs stats (inchangés)
                 const nature = rawData.filter(i => /nature|rando|volcan|montagne|jardin|vue|île/i.test(i.type)).length;
                 const culture = rawData.filter(i => /temple|sanctuaire|ville|histoire|musée/i.test(i.type)).length;
-                
                 document.getElementById('stat-nature-percent').innerText = Math.round((nature/rawData.length)*100) + "%";
                 document.getElementById('stat-culture-percent').innerText = Math.round((culture/rawData.length)*100) + "%";
 
+                // --- GÉNÉRATION DES CARTES LIEUX ---
                 const grid = document.getElementById('regions-grid');
                 grid.innerHTML = '';
                 
-                const regionCounts = {};
-                rawData.forEach(r => regionCounts[r.region] = (regionCounts[r.region]||0)+1);
+                // 1. Filtrer les données selon le Hub sélectionné sur la carte
+                let spotsDisplay = rawData;
+                if (this.activeMapFilter) {
+                    spotsDisplay = rawData.filter(s => s.region === this.activeMapFilter);
+                }
 
-                Object.keys(regionsData).forEach(rName => {
-                    const rData = regionsData[rName];
-                    const count = regionCounts[rName] || 0;
-                    if(count === 0) return;
+                // Mise à jour du compteur visible
+                document.getElementById('gallery-count').innerText = `${spotsDisplay.length} lieux affichés`;
 
-                    const regionSpots = rawData.filter(s => s.region === rName);
+                // 2. Générer les cartes
+                spotsDisplay.forEach(spot => {
+                    const regionInfo = regionsData[spot.region];
+                    const color = regionInfo ? regionInfo.color : 'slate';
                     
-                    const spotsListHTML = regionSpots.map(s => `
-                        <li class="text-sm text-stone-700 truncate flex items-center gap-2 py-0.5">
-                            <span class="opacity-70 text-base">${this.getEmoji(s.type)}</span> 
-                            <span>${s.name}</span>
-                        </li>
-                    `).join('');
+                    // Gestion Image (Placeholder ou Local)
+                    const imageHTML = spot.image 
+                        ? `<img src="${spot.image}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500" alt="${spot.name}">`
+                        : `<div class="w-full h-48 bg-stone-100 flex flex-col items-center justify-center text-stone-300 group-hover:bg-stone-200 transition-colors">
+                             <span class="text-3xl mb-2">📷</span>
+                             <span class="text-xs">Pas d'image</span>
+                           </div>`;
 
                     const el = document.createElement('div');
-                    el.className = `bg-${rData.color}-50 p-5 rounded-xl border border-${rData.color}-200 shadow-sm hover:shadow-md hover:scale-[1.01] cursor-pointer transition-all group flex flex-col h-full`;
-                    el.onclick = () => this.selectRegion(rName);
+                    // Carte cliquable qui remonte vers le détail
+                    el.className = `bg-white rounded-xl shadow-sm border border-stone-100 overflow-hidden hover:shadow-lg transition-all group flex flex-col`;
+                    
+                    // HTML de la Carte Lieu
                     el.innerHTML = `
-                        <div class="flex justify-between items-start mb-3">
-                            <h4 class="font-bold text-${rData.color}-800 text-lg">${rName}</h4>
-                            <span class="bg-white/80 text-${rData.color}-700 text-xs font-bold px-2 py-1 rounded backdrop-blur-sm border border-${rData.color}-100">${count}</span>
+                        <div class="relative overflow-hidden">
+                            ${imageHTML}
+                            <div class="absolute top-3 right-3 bg-white/90 backdrop-blur text-xs font-bold px-2 py-1 rounded shadow-sm">
+                                ★ ${spot.rating}
+                            </div>
+                            <div class="absolute bottom-3 left-3 bg-black/60 backdrop-blur text-white text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-wide">
+                                ${this.getEmoji(spot.type)} ${spot.type.split('/')[0]}
+                            </div>
                         </div>
                         
-                        <div class="text-xs font-medium text-stone-500 mb-3 flex items-center bg-white/50 w-fit px-2 py-1 rounded">
-                            <span class="mr-1">📍</span> Hub: ${rData.hub}
-                        </div>
-
-                        <ul class="flex-1 space-y-1 mb-4 pl-1 border-l-2 border-${rData.color}-200/50">
-                            ${spotsListHTML}
-                        </ul>
-
-                        <div class="text-xs text-${rData.color}-600 font-medium mt-auto pt-3 border-t border-${rData.color}-200 flex items-center justify-end group-hover:underline">
-                            Voir le détail &rarr;
+                        <div class="p-4 flex flex-col flex-1">
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="font-bold text-lg text-stone-800 leading-tight group-hover:text-indigo-600 transition-colors">${spot.name}</h4>
+                            </div>
+                            
+                            <p class="text-xs text-stone-500 line-clamp-2 mb-4 flex-1">${spot.desc}</p>
+                            
+                            <div class="mt-auto pt-3 border-t border-stone-100 flex items-center justify-between">
+                                <div class="flex items-center gap-1.5 text-xs font-medium text-stone-600 bg-stone-50 px-2 py-1 rounded">
+                                    <span>🚅</span>
+                                    <span>${spot.time} mn de ${spot.hub}</span>
+                                </div>
+                                
+                                <button onclick="app.selectRegion('${spot.region}')" class="text-[10px] uppercase font-bold text-${color}-600 hover:underline">
+                                    Voir Région
+                                </button>
+                            </div>
                         </div>
                     `;
                     grid.appendChild(el);
                 });
+
+                // Message si vide
+                if (spotsDisplay.length === 0) {
+                    grid.innerHTML = `<div class="col-span-full text-center py-10 text-stone-400">Aucun lieu trouvé pour cette sélection.</div>`;
+                }
             },
 
             renderRegionDetail(rName) {
