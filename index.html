@@ -85,38 +85,6 @@
             </section>
 
             <section class="bg-white rounded-2xl p-6 shadow-sm border border-stone-100">
-                <div class="grid md:grid-cols-2 gap-8 items-center">
-                    <div>
-                        <h3 class="text-xl font-bold mb-4 text-stone-800 border-l-4 border-indigo-500 pl-3">ADN de votre Voyage</h3>
-                        <p class="text-stone-600 mb-6 text-sm">
-                            Combinaison de classiques urbains et de pépites rares.
-                        </p>
-                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div class="bg-indigo-50 p-4 rounded-lg text-center">
-                                <div class="text-2xl font-bold text-indigo-600" id="stat-total-spots">0</div>
-                                <div class="text-[10px] text-indigo-800 uppercase tracking-wide">Lieux</div>
-                            </div>
-                            <div class="bg-emerald-50 p-4 rounded-lg text-center">
-                                <div class="text-2xl font-bold text-emerald-600" id="stat-nature-percent">0%</div>
-                                <div class="text-[10px] text-emerald-800 uppercase tracking-wide">Nature</div>
-                            </div>
-                            <div class="bg-amber-50 p-4 rounded-lg text-center">
-                                <div class="text-2xl font-bold text-amber-600" id="stat-culture-percent">0%</div>
-                                <div class="text-[10px] text-amber-800 uppercase tracking-wide">Culture</div>
-                            </div>
-                            <div class="bg-rose-50 p-4 rounded-lg text-center">
-                                <div class="text-2xl font-bold text-rose-600" id="stat-regions-count">0</div>
-                                <div class="text-[10px] text-rose-800 uppercase tracking-wide">Régions</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="overviewChart"></canvas>
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white rounded-2xl p-6 shadow-sm border border-stone-100">
                 <div class="flex justify-between items-center mb-4 border-l-4 border-indigo-500 pl-3">
                     <h3 class="text-xl font-bold text-stone-800">Carte Interactive</h3>
                     <div class="text-xs text-stone-400 font-medium hidden md:block">Cliquez sur un hub à droite pour filtrer</div>
@@ -641,7 +609,6 @@ const rawData = [
             
             init() {
                 this.renderSpotsGrid();
-                this.renderOverviewChart();
                 this.renderLegend();
                 setTimeout(() => this.renderMap(), 100);
             },
@@ -794,7 +761,7 @@ const rawData = [
                                             </div>
                                         </div>
 
-                                        <p class="text-[10px] text-gray-500 leading-snug line-clamp-2 mt-1.5">
+                                        <p class="text-[10px] text-gray-500 leading-snug mt-1.5">
                                             ${spot.desc}
                                         </p>
                                     </div>
@@ -834,14 +801,6 @@ const rawData = [
             renderSpotsGrid() {
                 // Mise à jour des compteurs globaux (Hero section)
                 document.getElementById('total-count-hero').innerText = rawData.length;
-                document.getElementById('stat-total-spots').innerText = rawData.length;
-                document.getElementById('stat-regions-count').innerText = Object.keys(regionsData).length;
-                
-                // Calculs stats (inchangés)
-                const nature = rawData.filter(i => /nature|rando|volcan|montagne|jardin|vue|île/i.test(i.type)).length;
-                const culture = rawData.filter(i => /temple|sanctuaire|ville|histoire|musée/i.test(i.type)).length;
-                document.getElementById('stat-nature-percent').innerText = Math.round((nature/rawData.length)*100) + "%";
-                document.getElementById('stat-culture-percent').innerText = Math.round((culture/rawData.length)*100) + "%";
 
                 // --- GÉNÉRATION DES CARTES LIEUX ---
                 const grid = document.getElementById('regions-grid');
@@ -890,7 +849,7 @@ const rawData = [
                                 <h4 class="font-bold text-lg text-stone-800 leading-tight group-hover:text-indigo-600 transition-colors">${spot.name}</h4>
                             </div>
                             
-                            <p class="text-xs text-stone-500 line-clamp-2 mb-4 flex-1">${spot.desc}</p>
+                            <p class="text-xs text-stone-500 mb-4 flex-1">${spot.desc}</p>
                             
                             <div class="mt-auto pt-3 border-t border-stone-100 flex items-center justify-between">
                                 <div class="flex items-center gap-1.5 text-xs font-medium text-stone-600 bg-stone-50 px-2 py-1 rounded">
@@ -938,7 +897,7 @@ const rawData = [
                                 <h4 class="font-bold text-stone-800 truncate pr-2">${spot.name}</h4>
                                 <span class="text-xs font-bold text-amber-500 flex items-center bg-amber-50 px-1.5 py-0.5 rounded">★ ${spot.rating}</span>
                             </div>
-                            <p class="text-xs text-stone-500 mt-1 mb-2 line-clamp-2 leading-relaxed">${spot.desc}</p>
+                            <p class="text-xs text-stone-500 mt-1 mb-2 leading-relaxed">${spot.desc}</p>
                             <div class="flex flex-wrap gap-2 text-[10px] font-medium uppercase tracking-wide text-stone-400">
                                 <span class="bg-stone-50 px-2 py-1 rounded">⏱ ${spot.time} min</span>
                                 <span class="bg-stone-50 px-2 py-1 rounded">🚌 ${spot.transport || 'Local'}</span>
@@ -958,30 +917,6 @@ const rawData = [
                 if(/eau|volcan|onsen|île/i.test(type)) return '🌊';
                 if(/histoire|musée/i.test(type)) return '📜';
                 return '📍';
-            },
-
-            renderOverviewChart() {
-                const ctx = document.getElementById('overviewChart').getContext('2d');
-                const counts = {};
-                rawData.forEach(r => counts[r.region] = (counts[r.region]||0)+1);
-                
-                new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: Object.keys(counts),
-                        datasets: [{
-                            data: Object.values(counts),
-                            backgroundColor: ['#4f46e5', '#0ea5e9', '#8b5cf6', '#f59e0b', '#14b8a6', '#f43f5e', '#f97316', '#ef4444', '#10b981', '#22c55e', '#64748b', '#06b6d4', '#78716c', '#84cc16', '#d946ef'],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        cutout: '70%'
-                    }
-                });
             },
 
             renderChart(spots) {
